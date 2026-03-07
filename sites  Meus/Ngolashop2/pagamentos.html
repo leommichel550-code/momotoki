@@ -1,0 +1,1134 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>Pagamento - Leom</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+    <!-- QR Code Generator -->
+    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #3B82F6;
+            --primary-dark: #2563EB;
+            --primary-light: #DBEAFE;
+            --goku-silver: #94A3B8;
+            --goku-blue: #60A5FA;
+            --gradient-goku: linear-gradient(135deg, #3B82F6, #60A5FA, #94A3B8);
+            --secondary: #1E293B;
+            --secondary-light: #334155;
+            --success: #25D366;
+            --success-dark: #128C7E;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --text: #1E293B;
+            --text-light: #64748B;
+            --light: #F8FAFC;
+            --white: #ffffff;
+            --shadow-sm: 0 2px 8px rgba(59,130,246,0.1);
+            --shadow-md: 0 4px 20px rgba(59,130,246,0.15);
+            --shadow-lg: 0 10px 40px rgba(59,130,246,0.2);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            color: var(--text);
+            line-height: 1.5;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 12px;
+        }
+
+        .container {
+            max-width: 100%;
+            margin: 0 auto;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 15px 10px;
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+        }
+
+        .logo {
+            font-size: 32px;
+            font-weight: 800;
+            background: var(--gradient-goku);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 8px;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            color: white;
+            margin-bottom: 5px;
+        }
+
+        .header p {
+            color: rgba(255,255,255,0.9);
+            font-size: 14px;
+        }
+
+        /* Cards */
+        .card {
+            background: white;
+            border-radius: 24px;
+            padding: 20px;
+            margin-bottom: 16px;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--light);
+        }
+
+        .card-header i {
+            font-size: 24px;
+            color: var(--primary);
+            background: var(--primary-light);
+            padding: 12px;
+            border-radius: 14px;
+        }
+
+        .card-header h2 {
+            font-size: 18px;
+            color: var(--secondary);
+            font-weight: 700;
+        }
+
+        /* Timer */
+        .timer-container {
+            text-align: center;
+            margin-bottom: 16px;
+        }
+
+        .timer {
+            background: rgba(255,255,255,0.95);
+            border-radius: 60px;
+            padding: 15px 20px;
+            display: inline-flex;
+            align-items: center;
+            gap: 15px;
+            box-shadow: var(--shadow-lg);
+            width: 100%;
+            max-width: 300px;
+            margin: 0 auto;
+        }
+
+        .timer i {
+            color: var(--primary);
+            font-size: 24px;
+        }
+
+        .timer-info {
+            text-align: left;
+            flex: 1;
+        }
+
+        .timer-label {
+            font-size: 12px;
+            color: var(--text-light);
+        }
+
+        .timer-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        /* Resumo do Pedido */
+        .order-summary {
+            background: var(--light);
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 20px;
+        }
+
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px dashed #e2e8f0;
+        }
+
+        .summary-item:last-child {
+            border-bottom: none;
+        }
+
+        .summary-label {
+            color: var(--text-light);
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .summary-value {
+            font-weight: 600;
+            color: var(--secondary);
+            font-size: 14px;
+        }
+
+        .total-price {
+            font-size: 20px;
+            color: var(--primary);
+            font-weight: 800;
+        }
+
+        /* Dados Bancários */
+        .bank-details {
+            background: linear-gradient(135deg, var(--primary-light), white);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 2px solid var(--primary);
+        }
+
+        .bank-row {
+            background: white;
+            border-radius: 12px;
+            padding: 14px;
+            margin-bottom: 10px;
+            border: 1px solid #e2e8f0;
+            word-break: break-word;
+        }
+
+        .bank-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .bank-label {
+            font-weight: 600;
+            color: var(--text-light);
+            font-size: 13px;
+            margin-bottom: 5px;
+        }
+
+        .bank-value {
+            font-weight: 700;
+            color: var(--secondary);
+            font-size: 15px;
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        .copy-btn {
+            background: var(--primary-light);
+            border: none;
+            color: var(--primary);
+            cursor: pointer;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 13px;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            width: 100%;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+
+        .copy-btn:active {
+            background: var(--primary);
+            color: white;
+        }
+
+        /* Multicaixa Express */
+        .multicaixa-section {
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: var(--light);
+            border-radius: 16px;
+        }
+
+        .multicaixa-number {
+            font-size: 32px;
+            font-weight: 800;
+            background: var(--gradient-goku);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: 2px;
+            margin: 15px 0;
+        }
+
+        .qrcode-container {
+            display: flex;
+            justify-content: center;
+            margin: 20px 0;
+        }
+
+        #qrcode {
+            padding: 15px;
+            background: white;
+            border-radius: 16px;
+            box-shadow: var(--shadow-md);
+        }
+
+        #qrcode img {
+            margin: 0 auto;
+        }
+
+        /* Botões */
+        .btn {
+            padding: 16px 20px;
+            border-radius: 14px;
+            font-weight: 600;
+            font-size: 16px;
+            border: none;
+            width: 100%;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .btn-primary {
+            background: var(--gradient-goku);
+            color: white;
+        }
+
+        .btn-primary:active {
+            transform: scale(0.98);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--primary);
+            color: var(--primary);
+        }
+
+        .btn-outline:active {
+            background: var(--primary-light);
+        }
+
+        .btn-success {
+            background: #25D366;
+            color: white;
+        }
+
+        .btn-success:active {
+            background: #128C7E;
+            transform: scale(0.98);
+        }
+
+        .btn-warning {
+            background: var(--warning);
+            color: white;
+        }
+
+        .btn-warning:active {
+            background: #e67e22;
+            transform: scale(0.98);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
+        /* Valor a pagar */
+        .payment-amount {
+            background: var(--warning);
+            color: white;
+            padding: 15px;
+            border-radius: 12px;
+            text-align: center;
+            font-weight: 600;
+            margin-top: 15px;
+            font-size: 18px;
+        }
+
+        /* FAQ */
+        .faq-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .faq-item {
+            background: var(--light);
+            padding: 15px;
+            border-radius: 12px;
+        }
+
+        .faq-item h4 {
+            color: var(--primary);
+            margin-bottom: 5px;
+            font-size: 15px;
+        }
+
+        .faq-item p {
+            color: var(--text-light);
+            font-size: 13px;
+        }
+
+        /* Loading Spinner */
+        .loading-spinner {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255,255,255,0.95);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid var(--light);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            right: 20px;
+            background: white;
+            border-radius: 12px;
+            padding: 15px 20px;
+            box-shadow: var(--shadow-lg);
+            display: none;
+            align-items: center;
+            gap: 12px;
+            z-index: 10000;
+            animation: slideDown 0.3s ease;
+            border-left: 4px solid var(--primary);
+        }
+
+        .toast.error {
+            border-left-color: var(--danger);
+        }
+
+        .toast.success {
+            border-left-color: var(--success);
+        }
+
+        .toast.warning {
+            border-left-color: var(--warning);
+        }
+
+        @keyframes slideDown {
+            from {
+                transform: translateY(-100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        /* Support Contact */
+        .support-contact {
+            background: var(--light);
+            padding: 20px;
+            border-radius: 16px;
+            margin-top: 20px;
+            text-align: center;
+            border: 2px solid var(--primary-light);
+        }
+
+        .support-number {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary);
+            margin: 10px 0;
+            display: inline-block;
+            background: white;
+            padding: 12px 24px;
+            border-radius: 50px;
+            box-shadow: var(--shadow-md);
+            text-decoration: none;
+        }
+
+        .whatsapp-link {
+            background: #25D366;
+            color: white;
+            padding: 16px;
+            border-radius: 14px;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            font-weight: 600;
+            margin-top: 15px;
+            transition: all 0.3s;
+        }
+
+        .whatsapp-link:active {
+            transform: scale(0.98);
+            background: #128C7E;
+        }
+
+        /* Upload de comprovativo */
+        .comprovativo-section {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            margin: 20px 0;
+            border: 2px solid var(--success);
+        }
+
+        .comprovativo-title {
+            color: var(--success);
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Checkbox de confirmação de pagamento */
+        .pagamento-checkbox {
+            background: var(--light);
+            border-radius: 16px;
+            padding: 20px;
+            margin: 20px 0;
+            border: 2px solid var(--primary);
+        }
+
+        .checkbox-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .checkbox-wrapper input[type="checkbox"] {
+            width: 24px;
+            height: 24px;
+            accent-color: var(--primary);
+        }
+
+        .checkbox-wrapper label {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--secondary);
+            flex: 1;
+        }
+
+        /* Detector de volta do WhatsApp */
+        .return-detector {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 10001;
+        }
+
+        .return-modal {
+            background: white;
+            border-radius: 24px;
+            padding: 30px;
+            max-width: 90%;
+            text-align: center;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .return-modal i {
+            font-size: 64px;
+            color: var(--success);
+            margin-bottom: 20px;
+        }
+
+        .return-modal h3 {
+            font-size: 22px;
+            margin-bottom: 10px;
+            color: var(--secondary);
+        }
+
+        .return-modal p {
+            color: var(--text-light);
+            margin-bottom: 25px;
+        }
+
+        /* Aviso de pagamento obrigatório */
+        .payment-warning {
+            background: #fee2e2;
+            border: 2px solid #ef4444;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .payment-warning i {
+            color: #ef4444;
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        .payment-warning p {
+            color: #991b1b;
+            font-weight: 600;
+        }
+
+        /* Hidden class */
+        .hidden {
+            display: none;
+        }
+
+        /* Ajustes para mobile */
+        @media (max-width: 480px) {
+            body {
+                padding: 8px;
+            }
+
+            .card {
+                padding: 16px;
+            }
+
+            .multicaixa-number {
+                font-size: 28px;
+            }
+
+            .timer-value {
+                font-size: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Spinner -->
+    <div class="loading-spinner" id="loadingSpinner">
+        <div class="spinner"></div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast" id="toast">
+        <i class="fas fa-check-circle" id="toastIcon"></i>
+        <span id="toastMessage"></span>
+    </div>
+
+    <!-- Detector de volta do WhatsApp -->
+    <div class="return-detector" id="returnDetector" onclick="hideReturnModal()">
+        <div class="return-modal" onclick="event.stopPropagation()">
+            <i class="fas fa-check-circle"></i>
+            <h3>Bem-vindo de volta!</h3>
+            <p>Seu comprovativo foi enviado com sucesso?</p>
+            <div style="display: flex; gap: 10px;">
+                <button class="btn btn-outline" style="flex: 1;" onclick="hideReturnModal()">Ainda não</button>
+                <button class="btn btn-success" style="flex: 1;" onclick="confirmarEnvio()">Sim, já enviei</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="logo">Leom</div>
+            <h1>Finalizar Pagamento</h1>
+            <p>Complete o pagamento para ativar sua loja</p>
+        </div>
+
+        <!-- Aviso de pagamento obrigatório -->
+        <div class="payment-warning">
+            <i class="fas fa-exclamation-triangle"></i>
+            <p>⚠️ O acesso ao dashboard só será liberado após a confirmação do pagamento</p>
+        </div>
+
+        <!-- Timer -->
+        <div class="timer-container">
+            <div class="timer">
+                <i class="fas fa-hourglass-half"></i>
+                <div class="timer-info">
+                    <div class="timer-label">Tempo para pagamento</div>
+                    <div class="timer-value" id="timer">30:00</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card Principal -->
+        <div id="mainPaymentCard">
+            <!-- Card Principal -->
+            <div class="card">
+                <!-- Resumo do Pedido -->
+                <div class="order-summary" id="orderSummary"></div>
+
+                <!-- Dados Bancários -->
+                <div class="bank-details">
+                    <h3 style="margin-bottom: 15px; font-size: 16px;">
+                        <i class="fas fa-building" style="margin-right: 8px;"></i>
+                        Banco BFA
+                    </h3>
+                    
+                    <div class="bank-row">
+                        <div class="bank-label">Titular da Conta</div>
+                        <div class="bank-value">Michel Manuel Gaspar Antonio</div>
+                    </div>
+
+                    <div class="bank-row">
+                        <div class="bank-label">IBAN</div>
+                        <div class="bank-value" id="iban">AO06 0044 0000 1234 5678 9012 3</div>
+                        <button class="copy-btn" onclick="copyToClipboard('AO06 0044 0000 1234 5678 9012 3')">
+                            <i class="fas fa-copy"></i> Copiar IBAN
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Multicaixa Express -->
+                <div class="multicaixa-section">
+                    <h3 style="margin-bottom: 10px;">
+                        <i class="fas fa-mobile-alt" style="margin-right: 8px;"></i>
+                        Multicaixa Express
+                    </h3>
+                    
+                    <div class="multicaixa-number" id="multicaixaNumber">
+                        954 132 732
+                    </div>
+                    
+                    <button class="copy-btn" onclick="copyToClipboard('954132732')" style="margin-bottom: 15px;">
+                        <i class="fas fa-copy"></i> Copiar número
+                    </button>
+
+                    <div class="qrcode-container">
+                        <div id="qrcode"></div>
+                    </div>
+                    <p style="color: var(--text-light); font-size: 12px; margin-top: 10px;">
+                        Escaneie para pagar via Multicaixa Express
+                    </p>
+                </div>
+
+                <!-- Valor a Pagar -->
+                <div class="payment-amount">
+                    <strong>Valor a pagar:</strong> <span id="paymentAmount">1.500 Kz</span>
+                </div>
+            </div>
+
+            <!-- Card de Envio do Comprovativo -->
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-file-invoice"></i>
+                    <h2>Enviar Comprovativo</h2>
+                </div>
+
+                <!-- Checkbox de confirmação de pagamento -->
+                <div class="pagamento-checkbox">
+                    <div class="checkbox-wrapper">
+                        <input type="checkbox" id="confirmPayment" onchange="toggleEnviarButton()">
+                        <label for="confirmPayment">✓ Confirmo que realizei o pagamento</label>
+                    </div>
+                    <p style="color: var(--text-light); font-size: 13px; margin-left: 39px;">
+                        Marque esta caixa após fazer o pagamento
+                    </p>
+                </div>
+
+                <!-- Instruções (inicialmente ocultas, aparecem após marcar checkbox) -->
+                <div id="instructionsSection" style="display: none;">
+                    <div style="background: var(--light); border-radius: 16px; padding: 15px; margin-bottom: 20px;">
+                        <div style="display: flex; gap: 12px; margin-bottom: 15px;">
+                            <div style="width: 30px; height: 30px; background: var(--primary); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700;">1</div>
+                            <div>
+                                <h4 style="font-size: 15px;">Tire um print/foto</h4>
+                                <p style="font-size: 13px; color: var(--text-light);">Do comprovativo de transferência</p>
+                            </div>
+                        </div>
+                        <div style="display: flex; gap: 12px;">
+                            <div style="width: 30px; height: 30px; background: var(--primary); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700;">2</div>
+                            <div>
+                                <h4 style="font-size: 15px;">Clique no botão abaixo</h4>
+                                <p style="font-size: 13px; color: var(--text-light);">Envie o comprovativo pelo WhatsApp</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Seção de Upload do Comprovativo -->
+                    <div class="comprovativo-section">
+                        <div class="comprovativo-title">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                            Envie seu comprovativo
+                        </div>
+                        
+                        <p style="color: var(--text-light); font-size: 14px; margin-bottom: 15px;">
+                            Clique no botão abaixo para enviar o comprovativo pelo WhatsApp:
+                        </p>
+
+                        <!-- Link direto para WhatsApp com mensagem pré-definida -->
+                        <a href="#" class="btn btn-success" id="whatsappComprovativoLink" onclick="sendComprovativoViaWhatsApp(event)">
+                            <i class="fab fa-whatsapp fa-2x"></i>
+                            Enviar comprovativo via WhatsApp
+                        </a>
+
+                        <p style="color: var(--text-light); font-size: 12px; text-align: center; margin-top: 15px;">
+                            <i class="fas fa-lock"></i> Seus dados são seguros
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mensagem de Redirecionamento (inicialmente oculta) -->
+        <div class="card hidden" id="redirectMessage">
+            <div style="text-align: center; padding: 30px 20px;">
+                <i class="fas fa-check-circle" style="font-size: 64px; color: #28a745; margin-bottom: 20px;"></i>
+                <h2 style="margin-bottom: 15px;">Pagamento Confirmado!</h2>
+                <p style="color: var(--text-light); margin-bottom: 25px;">
+                    Obrigado! Você será redirecionado para o dashboard em instantes...
+                </p>
+                <div class="spinner" style="width: 40px; height: 40px; margin: 0 auto;"></div>
+            </div>
+        </div>
+
+        <!-- FAQ (sempre visível) -->
+        <div class="card">
+            <h3 style="margin-bottom: 15px; font-size: 18px;">Perguntas Frequentes</h3>
+            <div class="faq-grid">
+                <div class="faq-item">
+                    <h4>⏱️ Quanto tempo demora?</h4>
+                    <p>A ativação é feita em até 1 hora após a confirmação do pagamento.</p>
+                </div>
+                <div class="faq-item">
+                    <h4>📞 Como saber se foi confirmado?</h4>
+                    <p>Você receberá uma mensagem no WhatsApp assim que o pagamento for confirmado.</p>
+                </div>
+                <div class="faq-item">
+                    <h4>📎 Como enviar o comprovativo?</h4>
+                    <p>Marque a caixa "Confirmo que realizei o pagamento" e clique no botão verde.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Suporte com link para WhatsApp -->
+        <div class="support-contact">
+            <i class="fas fa-headset" style="color: var(--primary); font-size: 32px; margin-bottom: 10px;"></i>
+            <p style="color: var(--text-light); margin-bottom: 5px;">Precisa de ajuda?</p>
+            
+            <!-- Número com link direto para WhatsApp -->
+            <a href="https://wa.me/244972481656?text=Olá%21+Precisa+de+ajuda+com+meu+pagamento+na+Leom." 
+               class="support-number" 
+               target="_blank">
+                972 481 656
+            </a>
+            
+            <p style="font-size: 13px; color: var(--text-light); margin-top: 10px;">
+                <i class="fab fa-whatsapp" style="color: #25D366;"></i> 
+                Clique no número para falar conosco
+            </p>
+            
+            <a href="https://wa.me/244972481656?text=Olá%21+Precisa+de+ajuda+com+meu+pagamento+na+Leom." 
+               class="whatsapp-link" 
+               target="_blank">
+                <i class="fab fa-whatsapp"></i>
+                Falar com suporte
+            </a>
+        </div>
+    </div>
+
+    <script>
+        // Verificar autenticação e status de pagamento
+        window.addEventListener('load', function() {
+            const userData = localStorage.getItem('userData');
+            const pagamentoConfirmado = localStorage.getItem('pagamentoConfirmado');
+            
+            // Se não tiver dados de usuário, redirecionar para criar conta
+            if (!userData) {
+                window.location.href = 'criar-loja.html';
+                return;
+            }
+            
+            // Só redireciona para dashboard se o pagamento foi confirmado
+            if (pagamentoConfirmado === 'true') {
+                window.location.href = 'dashboard.html';
+                return;
+            }
+            
+            // Se tiver dados mas não pagou, mostra a página de pagamento normalmente
+            loadOrderData();
+            
+            // Mostrar aviso de que precisa pagar
+            showToast('Complete o pagamento para ativar sua loja', 'warning');
+        });
+
+        // Dados do plano
+        let planData = {
+            type: 'profissional',
+            name: 'Profissional',
+            price: '1.500',
+            storeName: 'Minha Loja'
+        };
+
+        // Timer
+        let timeLeft = 30 * 60;
+        const timerElement = document.getElementById('timer');
+        let timerInterval;
+
+        function updateTimer() {
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+            timerElement.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            
+            if (timeLeft > 0) {
+                timeLeft--;
+            } else {
+                showToast('Tempo esgotado. Por favor, reinicie o processo.', 'warning');
+                // Não redireciona automaticamente, só avisa
+            }
+        }
+
+        timerInterval = setInterval(updateTimer, 1000);
+
+        // Carregar dados
+        function loadOrderData() {
+            const userData = JSON.parse(localStorage.getItem('userData') || '{}');
+            
+            // Determinar plano baseado nos dados do usuário
+            const plan = userData.plan || 'profissional';
+            
+            let planName = '';
+            let planPrice = '';
+            
+            switch(plan) {
+                case 'gratis':
+                    planName = 'Grátis';
+                    planPrice = '0';
+                    break;
+                case 'profissional':
+                    planName = 'Profissional';
+                    planPrice = '1.500';
+                    break;
+                case 'ilimitado':
+                    planName = 'Ilimitado';
+                    planPrice = '5.000';
+                    break;
+                default:
+                    planName = 'Profissional';
+                    planPrice = '1.500';
+            }
+            
+            planData = {
+                type: plan,
+                name: planName,
+                price: planPrice,
+                storeName: userData.storeName || 'Minha Loja'
+            };
+
+            document.getElementById('orderSummary').innerHTML = `
+                <div class="summary-item">
+                    <span class="summary-label">Plano:</span>
+                    <span class="summary-value">${planData.name}</span>
+                </div>
+                <div class="summary-item">
+                    <span class="summary-label">Loja:</span>
+                    <span class="summary-value">${planData.storeName}</span>
+                </div>
+                <div class="summary-item">
+                    <span class="summary-label">Valor:</span>
+                    <span class="summary-value total-price">${planData.price} Kz</span>
+                </div>
+                <div class="summary-item">
+                    <span class="summary-label">Período:</span>
+                    <span class="summary-value">Mensal</span>
+                </div>
+            `;
+            
+            document.getElementById('paymentAmount').textContent = `${planData.price} Kz`;
+            generateQRCode(planData.price);
+            
+            // Atualizar link do comprovativo com os dados do usuário
+            updateComprovativoLink();
+        }
+
+        // Atualizar link do comprovativo
+        function updateComprovativoLink() {
+            const userData = JSON.parse(localStorage.getItem('userData') || '{}');
+            const supportNumber = '244972481656';
+            
+            let message = `Olá! Acabei de fazer um pagamento na Leom.\n\n`;
+            message += `━━━━━━━━━━━━━━━━━━━\n`;
+            message += `📍 *Loja:* ${userData.storeName || 'Minha Loja'}\n`;
+            message += `📊 *Plano:* ${planData.name}\n`;
+            message += `💰 *Valor:* ${planData.price} Kz\n`;
+            message += `👤 *Proprietário:* ${userData.fullName || 'Não informado'}\n`;
+            message += `📧 *E-mail:* ${userData.email || 'Não informado'}\n`;
+            message += `📱 *Contacto:* ${userData.countryCode || ''} ${userData.contact || ''}\n`;
+            message += `━━━━━━━━━━━━━━━━━━━\n\n`;
+            message += `📎 *Segue em anexo o comprovativo do pagamento.*\n\n`;
+            message += `Por favor, confirmem o recebimento. Obrigado!`;
+            
+            const encodedMessage = encodeURIComponent(message);
+            const whatsappLink = `https://wa.me/${supportNumber}?text=${encodedMessage}`;
+            
+            document.getElementById('whatsappComprovativoLink').href = whatsappLink;
+        }
+
+        // QR Code
+        function generateQRCode(amount) {
+            const qrcodeDiv = document.getElementById('qrcode');
+            qrcodeDiv.innerHTML = ''; // Limpar QR code anterior
+            new QRCode(qrcodeDiv, {
+                text: `MULTICAIXA|${amount}|${planData.storeName}|${Date.now()}`,
+                width: 150,
+                height: 150
+            });
+        }
+
+        // Copiar
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                showToast('Copiado!', 'success');
+            }).catch(() => {
+                // Fallback para mobile
+                const textarea = document.createElement('textarea');
+                textarea.value = text;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                showToast('Copiado!', 'success');
+            });
+        }
+
+        // Função para mostrar/esconder instruções baseado no checkbox
+        function toggleEnviarButton() {
+            const confirmCheckbox = document.getElementById('confirmPayment');
+            const instructionsSection = document.getElementById('instructionsSection');
+            
+            if (confirmCheckbox.checked) {
+                instructionsSection.style.display = 'block';
+            } else {
+                instructionsSection.style.display = 'none';
+            }
+        }
+
+        // Enviar comprovativo via WhatsApp
+        function sendComprovativoViaWhatsApp(event) {
+            event.preventDefault();
+            
+            const userData = JSON.parse(localStorage.getItem('userData') || '{}');
+            const supportNumber = '244972481656';
+            
+            let message = `Olá! Acabei de fazer um pagamento na Leom.\n\n`;
+            message += `━━━━━━━━━━━━━━━━━━━\n`;
+            message += `📍 *Loja:* ${userData.storeName || 'Minha Loja'}\n`;
+            message += `📊 *Plano:* ${planData.name}\n`;
+            message += `💰 *Valor:* ${planData.price} Kz\n`;
+            message += `👤 *Proprietário:* ${userData.fullName || 'Não informado'}\n`;
+            message += `📧 *E-mail:* ${userData.email || 'Não informado'}\n`;
+            message += `📱 *Contacto:* ${userData.countryCode || ''} ${userData.contact || ''}\n`;
+            message += `━━━━━━━━━━━━━━━━━━━\n\n`;
+            message += `📎 *Segue em anexo o comprovativo do pagamento.*\n\n`;
+            message += `Por favor, confirmem o recebimento. Obrigado!`;
+            
+            const encodedMessage = encodeURIComponent(message);
+            const whatsappLink = `https://wa.me/${supportNumber}?text=${encodedMessage}`;
+            
+            // Abrir WhatsApp
+            window.open(whatsappLink, '_blank');
+            
+            // Salvar que o WhatsApp foi aberto
+            localStorage.setItem('whatsappAberto', 'true');
+            
+            // Mostrar o detector de volta após 2 segundos
+            setTimeout(() => {
+                showReturnModal();
+            }, 2000);
+            
+            showToast('Redirecionando para WhatsApp...', 'success');
+        }
+
+        // Mostrar modal ao voltar do WhatsApp
+        function showReturnModal() {
+            document.getElementById('returnDetector').style.display = 'flex';
+        }
+
+        // Esconder modal
+        function hideReturnModal() {
+            document.getElementById('returnDetector').style.display = 'none';
+        }
+
+        // Confirmar envio do comprovativo
+        function confirmarEnvio() {
+            hideReturnModal();
+            
+            // Mostrar loading
+            document.getElementById('loadingSpinner').style.display = 'flex';
+            
+            // Esconder o card principal
+            document.getElementById('mainPaymentCard').classList.add('hidden');
+            
+            // Mostrar mensagem de redirecionamento
+            document.getElementById('redirectMessage').classList.remove('hidden');
+            
+            // Parar o timer
+            clearInterval(timerInterval);
+            
+            // Salvar no localStorage que o pagamento foi confirmado
+            localStorage.setItem('pagamentoConfirmado', 'true');
+            localStorage.setItem('comprovativoEnviado', 'true');
+            
+            showToast('Pagamento confirmado! Redirecionando...', 'success');
+            
+            // Redirecionar para dashboard.html após 3 segundos
+            setTimeout(() => {
+                window.location.href = 'dashboard.html';
+            }, 3000);
+        }
+
+        // Toast
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            const toastIcon = document.getElementById('toastIcon');
+            const toastMessage = document.getElementById('toastMessage');
+            
+            toast.className = `toast ${type}`;
+            toastIcon.className = `fas ${type === 'success' ? 'fa-check-circle' : type === 'warning' ? 'fa-exclamation-triangle' : 'fa-exclamation-circle'}`;
+            toastMessage.textContent = message;
+            
+            toast.style.display = 'flex';
+            
+            setTimeout(() => {
+                toast.style.display = 'none';
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

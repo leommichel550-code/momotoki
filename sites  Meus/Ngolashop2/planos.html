@@ -1,0 +1,1521 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Planos e Preços - NgolaShop</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+    <!-- AOS Animation -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #3B82F6;
+            --primary-dark: #2563EB;
+            --primary-light: #DBEAFE;
+            --goku-silver: #94A3B8;
+            --goku-blue: #60A5FA;
+            --gradient-goku: linear-gradient(135deg, #3B82F6, #60A5FA, #94A3B8);
+            --secondary: #1E293B;
+            --secondary-light: #334155;
+            --success: #25D366;
+            --success-dark: #128C7E;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --text: #1E293B;
+            --text-light: #64748B;
+            --light: #F8FAFC;
+            --white: #ffffff;
+            --shadow-sm: 0 2px 8px rgba(59,130,246,0.1);
+            --shadow-md: 0 4px 20px rgba(59,130,246,0.15);
+            --shadow-lg: 0 10px 40px rgba(59,130,246,0.2);
+            --shadow-hover: 0 20px 60px rgba(59,130,246,0.25);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            color: var(--text);
+            line-height: 1.6;
+            overflow-x: hidden;
+            background: var(--light);
+        }
+
+        /* Loading Spinner */
+        .loading-spinner {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255,255,255,0.9);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            backdrop-filter: blur(5px);
+        }
+
+        .spinner {
+            width: 60px;
+            height: 60px;
+            border: 5px solid var(--light);
+            border-top-color: var(--primary);
+            border-right-color: var(--goku-blue);
+            border-bottom-color: var(--goku-silver);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Toast Notification */
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            border-radius: 12px;
+            padding: 16px 24px;
+            box-shadow: var(--shadow-lg);
+            display: none;
+            align-items: center;
+            gap: 12px;
+            z-index: 10000;
+            animation: slideIn 0.3s ease;
+            border-left: 4px solid var(--primary);
+            max-width: 400px;
+        }
+
+        .toast.error {
+            border-left-color: var(--danger);
+        }
+
+        .toast.success {
+            border-left-color: var(--success);
+        }
+
+        .toast.warning {
+            border-left-color: var(--warning);
+        }
+
+        .toast i {
+            font-size: 20px;
+        }
+
+        .toast.error i {
+            color: var(--danger);
+        }
+
+        .toast.success i {
+            color: var(--success);
+        }
+
+        .toast.warning i {
+            color: var(--warning);
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        /* Header */
+        .header {
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(10px);
+            box-shadow: var(--shadow-sm);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            padding: 20px 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+
+        .header.scrolled {
+            padding: 15px 5%;
+            background: rgba(255, 255, 255, 0.95);
+            box-shadow: var(--shadow-md);
+        }
+
+        .logo {
+            font-size: 28px;
+            font-weight: 800;
+            background: var(--gradient-goku);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 40px;
+            align-items: center;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--secondary);
+            font-weight: 500;
+            transition: 0.3s;
+            font-size: 15px;
+            position: relative;
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -4px;
+            left: 0;
+            background: var(--gradient-goku);
+            transition: width 0.3s;
+        }
+
+        .nav-links a:hover {
+            background: var(--gradient-goku);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        .btn {
+            padding: 14px 32px;
+            border-radius: 50px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s;
+            display: inline-block;
+            font-size: 15px;
+            letter-spacing: 0.3px;
+            cursor: pointer;
+            border: none;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .btn-primary {
+            background: var(--gradient-goku);
+            color: white;
+            background-size: 200% auto;
+        }
+
+        .btn-primary:hover {
+            background-position: right center;
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .btn-outline {
+            border: 2px solid var(--primary);
+            color: var(--primary);
+            background: transparent;
+        }
+
+        .btn-outline:hover {
+            background: var(--gradient-goku);
+            color: white;
+            border-color: transparent;
+            transform: translateY(-2px);
+        }
+
+        .btn-large {
+            padding: 16px 40px;
+            font-size: 16px;
+        }
+
+        /* Mobile Menu */
+        .mobile-menu-btn {
+            display: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--primary);
+        }
+
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(135deg, #1E293B 0%, var(--primary) 50%, var(--goku-silver) 100%);
+            padding: 150px 5% 80px;
+            text-align: center;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            width: 200%;
+            height: 200%;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" fill="white" opacity="0.05"/><circle cx="30" cy="30" r="10" fill="%2360A5FA" opacity="0.1"/></svg>');
+            animation: rotate 60s linear infinite;
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .hero h1 {
+            font-size: 48px;
+            margin-bottom: 20px;
+            font-weight: 800;
+            text-shadow: 0 2px 20px rgba(0,0,0,0.2);
+        }
+
+        .hero p {
+            font-size: 18px;
+            opacity: 0.95;
+            margin-bottom: 40px;
+        }
+
+        .hero-badge {
+            display: inline-block;
+            background: rgba(255,255,255,0.2);
+            backdrop-filter: blur(10px);
+            padding: 8px 20px;
+            border-radius: 50px;
+            font-size: 14px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(255,255,255,0.3);
+        }
+
+        /* Main Container */
+        .main-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 60px 20px;
+        }
+
+        /* Toggle Planos */
+        .billing-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 50px;
+        }
+
+        .toggle-label {
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .toggle-label.discount {
+            background: var(--success);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 50px;
+            font-size: 12px;
+        }
+
+        .toggle-switch {
+            width: 60px;
+            height: 30px;
+            background: #e2e8f0;
+            border-radius: 30px;
+            position: relative;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .toggle-switch.active {
+            background: var(--primary);
+        }
+
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            width: 26px;
+            height: 26px;
+            background: white;
+            border-radius: 50%;
+            top: 2px;
+            left: 2px;
+            transition: 0.3s;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .toggle-switch.active::after {
+            left: 32px;
+        }
+
+        /* Grid de Planos */
+        .plans-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+            margin-bottom: 80px;
+        }
+
+        .plan-card {
+            background: white;
+            border-radius: 32px;
+            padding: 40px 30px;
+            box-shadow: var(--shadow-md);
+            transition: all 0.4s;
+            position: relative;
+            overflow: hidden;
+            border: 2px solid transparent;
+        }
+
+        .plan-card:hover {
+            transform: translateY(-10px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .plan-card.popular {
+            border-color: var(--primary);
+            transform: scale(1.05);
+            z-index: 2;
+        }
+
+        .plan-card.popular:hover {
+            transform: scale(1.05) translateY(-10px);
+        }
+
+        .popular-badge {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            background: var(--gradient-goku);
+            color: white;
+            padding: 6px 16px;
+            border-radius: 50px;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .plan-name {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--secondary);
+            margin-bottom: 15px;
+        }
+
+        .plan-price {
+            font-size: 48px;
+            font-weight: 800;
+            background: var(--gradient-goku);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+            line-height: 1.2;
+        }
+
+        .plan-price span {
+            font-size: 16px;
+            font-weight: 400;
+            color: var(--text-light);
+            -webkit-text-fill-color: var(--text-light);
+        }
+
+        .plan-price-yearly {
+            font-size: 20px;
+            color: var(--text-light);
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .plan-price-yearly.active {
+            display: block;
+        }
+
+        .plan-price-yearly .total {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .savings-badge {
+            background: var(--success);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 50px;
+            font-size: 12px;
+            display: inline-block;
+            margin-left: 10px;
+        }
+
+        .plan-features {
+            list-style: none;
+            margin: 30px 0;
+        }
+
+        .plan-features li {
+            padding: 12px 0;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: var(--text);
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .plan-features li:last-child {
+            border-bottom: none;
+        }
+
+        .plan-features li i {
+            width: 20px;
+            font-size: 14px;
+        }
+
+        .plan-features li i.fa-check-circle {
+            color: var(--success);
+        }
+
+        .plan-features li i.fa-times-circle {
+            color: var(--danger);
+        }
+
+        .plan-features li.unavailable {
+            color: var(--text-light);
+            opacity: 0.7;
+        }
+
+        .plan-features li.highlight {
+            background: var(--primary-light);
+            padding: 12px;
+            border-radius: 12px;
+            margin: 8px 0;
+        }
+
+        .plan-btn {
+            width: 100%;
+            padding: 16px;
+            border-radius: 16px;
+            font-weight: 600;
+            font-size: 16px;
+            cursor: pointer;
+            transition: 0.3s;
+            border: 2px solid var(--primary);
+            background: transparent;
+            color: var(--primary);
+            margin-top: 20px;
+        }
+
+        .plan-btn:hover {
+            background: var(--primary);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .plan-btn.primary {
+            background: var(--gradient-goku);
+            color: white;
+            border: none;
+        }
+
+        .plan-btn.primary:hover {
+            background-position: right center;
+            box-shadow: var(--shadow-hover);
+        }
+
+        /* Comparação de Planos */
+        .comparison-section {
+            margin: 80px 0;
+        }
+
+        .comparison-title {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .comparison-title h2 {
+            font-size: 36px;
+            color: var(--secondary);
+            margin-bottom: 15px;
+        }
+
+        .comparison-title p {
+            color: var(--text-light);
+            font-size: 18px;
+        }
+
+        .comparison-table {
+            background: white;
+            border-radius: 32px;
+            overflow: hidden;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .comparison-row {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .comparison-row:last-child {
+            border-bottom: none;
+        }
+
+        .comparison-row.header {
+            background: var(--primary-light);
+            font-weight: 700;
+        }
+
+        .comparison-cell {
+            padding: 20px;
+            text-align: center;
+        }
+
+        .comparison-cell:first-child {
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .comparison-cell i.fa-check {
+            color: var(--success);
+            font-size: 20px;
+        }
+
+        .comparison-cell i.fa-times {
+            color: var(--danger);
+            font-size: 20px;
+        }
+
+        .comparison-cell .featured-badge {
+            background: var(--primary);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 50px;
+            font-size: 12px;
+        }
+
+        /* FAQ Section */
+        .faq-section {
+            background: white;
+            border-radius: 40px;
+            padding: 60px;
+            margin: 80px 0;
+            box-shadow: var(--shadow-md);
+        }
+
+        .faq-title {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .faq-title h2 {
+            font-size: 36px;
+            color: var(--secondary);
+            margin-bottom: 15px;
+        }
+
+        .faq-title p {
+            color: var(--text-light);
+            font-size: 18px;
+        }
+
+        .faq-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 30px;
+        }
+
+        .faq-item {
+            padding: 20px;
+            border: 2px solid #e2e8f0;
+            border-radius: 20px;
+            transition: 0.3s;
+        }
+
+        .faq-item:hover {
+            border-color: var(--primary);
+        }
+
+        .faq-question {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .faq-question h4 {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--secondary);
+        }
+
+        .faq-question i {
+            color: var(--primary);
+            transition: 0.3s;
+        }
+
+        .faq-item.active .faq-question i {
+            transform: rotate(180deg);
+        }
+
+        .faq-answer {
+            margin-top: 15px;
+            color: var(--text-light);
+            line-height: 1.7;
+            display: none;
+        }
+
+        .faq-item.active .faq-answer {
+            display: block;
+        }
+
+        /* CTA Section */
+        .cta-section {
+            background: var(--gradient-goku);
+            border-radius: 40px;
+            padding: 60px;
+            text-align: center;
+            color: white;
+            margin: 60px 0;
+        }
+
+        .cta-section h2 {
+            font-size: 36px;
+            margin-bottom: 20px;
+        }
+
+        .cta-section p {
+            font-size: 18px;
+            margin-bottom: 30px;
+            opacity: 0.95;
+        }
+
+        .cta-section .btn {
+            background: white;
+            color: var(--primary);
+            padding: 18px 50px;
+            font-size: 18px;
+        }
+
+        .cta-section .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+        }
+
+        .cta-section .small {
+            margin-top: 20px;
+            opacity: 0.8;
+            font-size: 14px;
+        }
+
+        /* Testimonials */
+        .testimonials-section {
+            margin: 80px 0;
+        }
+
+        .testimonials-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+            margin-top: 40px;
+        }
+
+        .testimonial-card {
+            background: white;
+            border-radius: 24px;
+            padding: 30px;
+            box-shadow: var(--shadow-md);
+        }
+
+        .testimonial-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .testimonial-stars {
+            color: #fbbf24;
+            margin-bottom: 15px;
+        }
+
+        .testimonial-text {
+            color: var(--text);
+            line-height: 1.7;
+            margin-bottom: 20px;
+            font-style: italic;
+        }
+
+        .testimonial-author {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .testimonial-avatar {
+            width: 50px;
+            height: 50px;
+            background: var(--gradient-goku);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+        }
+
+        .testimonial-info h4 {
+            font-size: 16px;
+            margin-bottom: 5px;
+        }
+
+        .testimonial-info p {
+            font-size: 14px;
+            color: var(--text-light);
+        }
+
+        /* Footer */
+        .footer {
+            background: var(--secondary);
+            color: white;
+            padding: 80px 5% 30px;
+            margin-top: 80px;
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: 60px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .footer-logo {
+            font-size: 28px;
+            font-weight: 800;
+            background: var(--gradient-goku);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 20px;
+        }
+
+        .footer-about {
+            color: #94A3B8;
+            line-height: 1.8;
+            margin-bottom: 25px;
+        }
+
+        .social-links {
+            display: flex;
+            gap: 15px;
+        }
+
+        .social-links a {
+            width: 40px;
+            height: 40px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+
+        .social-links a:hover {
+            background: var(--gradient-goku);
+            transform: translateY(-3px);
+        }
+
+        .footer-links h4 {
+            margin-bottom: 25px;
+            font-size: 18px;
+            font-weight: 600;
+            color: white;
+        }
+
+        .footer-links ul {
+            list-style: none;
+        }
+
+        .footer-links li {
+            margin-bottom: 12px;
+        }
+
+        .footer-links a {
+            color: #94A3B8;
+            text-decoration: none;
+            transition: 0.3s;
+            font-size: 15px;
+        }
+
+        .footer-links a:hover {
+            background: var(--gradient-goku);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            padding-left: 5px;
+        }
+
+        .footer-links i {
+            color: var(--primary);
+            margin-right: 10px;
+        }
+
+        .footer-bottom {
+            text-align: center;
+            padding-top: 40px;
+            margin-top: 40px;
+            border-top: 1px solid #334155;
+            color: #94A3B8;
+            font-size: 14px;
+        }
+
+        /* Responsividade */
+        @media (max-width: 1024px) {
+            .plans-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .testimonials-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .faq-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                padding: 15px 5%;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .mobile-menu-btn {
+                display: block;
+            }
+
+            .hero h1 {
+                font-size: 36px;
+            }
+
+            .plans-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .plan-card.popular {
+                transform: scale(1);
+            }
+
+            .plan-card.popular:hover {
+                transform: scale(1) translateY(-10px);
+            }
+
+            .testimonials-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .comparison-row {
+                grid-template-columns: 1fr;
+            }
+
+            .comparison-row.header {
+                display: none;
+            }
+
+            .comparison-cell {
+                text-align: left;
+                display: grid;
+                grid-template-columns: 1fr 1fr 1fr;
+                gap: 10px;
+                padding: 15px;
+            }
+
+            .comparison-cell:first-child {
+                grid-column: 1 / -1;
+                background: var(--primary-light);
+                margin-bottom: 10px;
+            }
+
+            .faq-section {
+                padding: 30px;
+            }
+
+            .cta-section {
+                padding: 40px 20px;
+            }
+
+            .cta-section h2 {
+                font-size: 28px;
+            }
+
+            .footer-content {
+                grid-template-columns: 1fr;
+                gap: 40px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .billing-toggle {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Spinner -->
+    <div class="loading-spinner" id="loadingSpinner">
+        <div class="spinner"></div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast" id="toast">
+        <i class="fas" id="toastIcon"></i>
+        <span id="toastMessage"></span>
+    </div>
+
+    <!-- Header -->
+    <header class="header" id="header">
+        <a href="index.html" class="logo">NgolaShop</a>
+        <nav class="nav-links">
+            <a href="index.html#como-funciona">Como funciona</a>
+            <a href="planos.html">Planos</a>
+            <a href="index.html#melhores-lojas">Melhores Lojas</a>
+            <a href="index.html#depoimentos">Depoimentos</a>
+            <a href="login.html" class="btn btn-outline">Entrar</a>
+            <a href="criar-loja.html" class="btn btn-primary">Criar loja grátis</a>
+        </nav>
+        <div class="mobile-menu-btn" onclick="toggleMobileMenu()">
+            <i class="fas fa-bars"></i>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content" data-aos="fade-up">
+            <span class="hero-badge">Planos para todos os negócios</span>
+            <h1>Escolha o plano ideal para sua loja</h1>
+            <p>Comece grátis e faça upgrade quando precisar crescer. Todos os planos incluem suporte e atualizações.</p>
+        </div>
+    </section>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Billing Toggle -->
+        <div class="billing-toggle" data-aos="fade-up">
+            <span class="toggle-label">Mensal</span>
+            <div class="toggle-switch" id="billingToggle" onclick="toggleBilling()">
+                <div class="toggle-slider"></div>
+            </div>
+            <span class="toggle-label">Anual <span class="toggle-label discount">Economize 20%</span></span>
+        </div>
+
+        <!-- Planos Grid -->
+        <div class="plans-grid">
+            <!-- Plano Grátis -->
+            <div class="plan-card" data-aos="fade-up" data-aos-delay="100">
+                <div class="plan-name">Grátis</div>
+                <div class="plan-price" id="priceGratis">0 <span>/mês</span></div>
+                <div class="plan-price-yearly" id="yearlyGratis">
+                    <span class="total">0</span> <span>/ano</span>
+                </div>
+                <ul class="plan-features">
+                    <li><i class="fas fa-check-circle"></i> 5 produtos</li>
+                    <li><i class="fas fa-times-circle"></i> Produtos em destaque</li>
+                    <li><i class="fas fa-check-circle"></i> Link ngolashop.com/sualoja</li>
+                    <li><i class="fas fa-check-circle"></i> Botão WhatsApp automático</li>
+                    <li><i class="fas fa-check-circle"></i> Suporte por email</li>
+                    <li><i class="fas fa-times-circle"></i> Domínio próprio</li>
+                    <li><i class="fas fa-times-circle"></i> Logotipo e capa personalizados</li>
+                    <li><i class="fas fa-times-circle"></i> Cores personalizadas</li>
+                    <li><i class="fas fa-times-circle"></i> Sem marca da plataforma</li>
+                </ul>
+                <button class="plan-btn" onclick="selectPlan('gratis')">Começar grátis</button>
+            </div>
+
+            <!-- Plano Profissional -->
+            <div class="plan-card popular" data-aos="fade-up" data-aos-delay="200">
+                <div class="popular-badge">Mais Popular</div>
+                <div class="plan-name">Profissional</div>
+                <div class="plan-price" id="priceProfissional">1.500 <span>Kz/mês</span></div>
+                <div class="plan-price-yearly" id="yearlyProfissional">
+                    <span class="total">14.400</span> <span>Kz/ano</span>
+                    <span class="savings-badge">Economize 20%</span>
+                </div>
+                <ul class="plan-features">
+                    <li><i class="fas fa-check-circle"></i> 20 produtos</li>
+                    <li><i class="fas fa-check-circle"></i> 5 produtos em destaque</li>
+                    <li><i class="fas fa-check-circle"></i> Link ngolashop.com/sualoja</li>
+                    <li><i class="fas fa-check-circle"></i> Botão WhatsApp automático</li>
+                    <li><i class="fas fa-check-circle"></i> Suporte prioritário</li>
+                    <li><i class="fas fa-times-circle"></i> Domínio próprio</li>
+                    <li class="highlight"><i class="fas fa-check-circle"></i> Logotipo e capa personalizados</li>
+                    <li class="highlight"><i class="fas fa-check-circle"></i> Cores personalizadas</li>
+                    <li><i class="fas fa-check-circle"></i> Sem marca da plataforma</li>
+                </ul>
+                <button class="plan-btn primary" onclick="selectPlan('profissional')">Assinar agora</button>
+            </div>
+
+            <!-- Plano Ilimitado -->
+            <div class="plan-card" data-aos="fade-up" data-aos-delay="300">
+                <div class="plan-name">Ilimitado</div>
+                <div class="plan-price" id="priceIlimitado">5.000 <span>Kz/mês</span></div>
+                <div class="plan-price-yearly" id="yearlyIlimitado">
+                    <span class="total">48.000</span> <span>Kz/ano</span>
+                    <span class="savings-badge">Economize 20%</span>
+                </div>
+                <ul class="plan-features">
+                    <li><i class="fas fa-check-circle"></i> Produtos ilimitados</li>
+                    <li><i class="fas fa-check-circle"></i> 15 produtos em destaque</li>
+                    <li><i class="fas fa-check-circle"></i> Link ngolashop.com/sualoja</li>
+                    <li><i class="fas fa-check-circle"></i> Botão WhatsApp automático</li>
+                    <li><i class="fas fa-check-circle"></i> Suporte VIP (24h)</li>
+                    <li class="highlight"><i class="fas fa-check-circle"></i> Domínio próprio</li>
+                    <li><i class="fas fa-check-circle"></i> Logotipo e capa personalizados</li>
+                    <li class="highlight"><i class="fas fa-check-circle"></i> Fontes personalizadas</li>
+                    <li><i class="fas fa-check-circle"></i> Sem marca da plataforma</li>
+                </ul>
+                <button class="plan-btn" onclick="selectPlan('ilimitado')">Assinar agora</button>
+            </div>
+        </div>
+
+        <!-- Comparação de Planos -->
+        <div class="comparison-section" data-aos="fade-up">
+            <div class="comparison-title">
+                <h2>Compare todos os recursos</h2>
+                <p>Veja detalhadamente o que cada plano oferece</p>
+            </div>
+
+            <div class="comparison-table">
+                <div class="comparison-row header">
+                    <div class="comparison-cell">Recursos</div>
+                    <div class="comparison-cell">Grátis</div>
+                    <div class="comparison-cell">Profissional</div>
+                    <div class="comparison-cell">Ilimitado</div>
+                </div>
+
+                <div class="comparison-row">
+                    <div class="comparison-cell">Número de produtos</div>
+                    <div class="comparison-cell">5</div>
+                    <div class="comparison-cell">20</div>
+                    <div class="comparison-cell">Ilimitado</div>
+                </div>
+
+                <div class="comparison-row">
+                    <div class="comparison-cell">Produtos em destaque</div>
+                    <div class="comparison-cell"><i class="fas fa-times"></i></div>
+                    <div class="comparison-cell">5</div>
+                    <div class="comparison-cell">15</div>
+                </div>
+
+                <div class="comparison-row">
+                    <div class="comparison-cell">Link personalizado</div>
+                    <div class="comparison-cell"><i class="fas fa-check"></i></div>
+                    <div class="comparison-cell"><i class="fas fa-check"></i></div>
+                    <div class="comparison-cell"><i class="fas fa-check"></i></div>
+                </div>
+
+                <div class="comparison-row">
+                    <div class="comparison-cell">Botão WhatsApp</div>
+                    <div class="comparison-cell"><i class="fas fa-check"></i></div>
+                    <div class="comparison-cell"><i class="fas fa-check"></i></div>
+                    <div class="comparison-cell"><i class="fas fa-check"></i></div>
+                </div>
+
+                <div class="comparison-row">
+                    <div class="comparison-cell">Suporte</div>
+                    <div class="comparison-cell">Email</div>
+                    <div class="comparison-cell">Prioritário</div>
+                    <div class="comparison-cell">VIP 24h</div>
+                </div>
+
+                <div class="comparison-row">
+                    <div class="comparison-cell">Domínio próprio</div>
+                    <div class="comparison-cell"><i class="fas fa-times"></i></div>
+                    <div class="comparison-cell"><i class="fas fa-times"></i></div>
+                    <div class="comparison-cell"><i class="fas fa-check"></i></div>
+                </div>
+
+                <div class="comparison-row">
+                    <div class="comparison-cell">Logotipo e capa</div>
+                    <div class="comparison-cell"><i class="fas fa-times"></i></div>
+                    <div class="comparison-cell"><i class="fas fa-check"></i></div>
+                    <div class="comparison-cell"><i class="fas fa-check"></i></div>
+                </div>
+
+                <div class="comparison-row">
+                    <div class="comparison-cell">Cores personalizadas</div>
+                    <div class="comparison-cell"><i class="fas fa-times"></i></div>
+                    <div class="comparison-cell"><i class="fas fa-check"></i></div>
+                    <div class="comparison-cell"><i class="fas fa-check"></i></div>
+                </div>
+
+                <div class="comparison-row">
+                    <div class="comparison-cell">Fontes personalizadas</div>
+                    <div class="comparison-cell"><i class="fas fa-times"></i></div>
+                    <div class="comparison-cell"><i class="fas fa-times"></i></div>
+                    <div class="comparison-cell"><i class="fas fa-check"></i></div>
+                </div>
+
+                <div class="comparison-row">
+                    <div class="comparison-cell">Sem marca da plataforma</div>
+                    <div class="comparison-cell"><i class="fas fa-times"></i></div>
+                    <div class="comparison-cell"><i class="fas fa-check"></i></div>
+                    <div class="comparison-cell"><i class="fas fa-check"></i></div>
+                </div>
+
+                <div class="comparison-row">
+                    <div class="comparison-cell">Preço mensal</div>
+                    <div class="comparison-cell">Grátis</div>
+                    <div class="comparison-cell">1.500 Kz</div>
+                    <div class="comparison-cell">5.000 Kz</div>
+                </div>
+
+                <div class="comparison-row">
+                    <div class="comparison-cell">Preço anual</div>
+                    <div class="comparison-cell">Grátis</div>
+                    <div class="comparison-cell">14.400 Kz</div>
+                    <div class="comparison-cell">48.000 Kz</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- FAQ Section -->
+        <div class="faq-section" data-aos="fade-up">
+            <div class="faq-title">
+                <h2>Perguntas frequentes</h2>
+                <p>Tire suas dúvidas sobre nossos planos</p>
+            </div>
+
+            <div class="faq-grid">
+                <div class="faq-item active" onclick="toggleFaq(this)">
+                    <div class="faq-question">
+                        <h4>Posso mudar de plano depois?</h4>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        Sim! Você pode fazer upgrade ou downgrade do seu plano a qualquer momento. As mudanças serão aplicadas no próximo ciclo de faturamento.
+                    </div>
+                </div>
+
+                <div class="faq-item" onclick="toggleFaq(this)">
+                    <div class="faq-question">
+                        <h4>Preciso de cartão de crédito para começar?</h4>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        Não! O plano grátis não requer cartão de crédito. Você só precisará inserir seus dados de pagamento quando fizer upgrade para um plano pago.
+                    </div>
+                </div>
+
+                <div class="faq-item" onclick="toggleFaq(this)">
+                    <div class="faq-question">
+                        <h4>O que acontece se eu exceder o limite de produtos?</h4>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        Você não poderá adicionar mais produtos até fazer um upgrade ou remover alguns produtos existentes. Seus produtos atuais continuarão visíveis.
+                    </div>
+                </div>
+
+                <div class="faq-item" onclick="toggleFaq(this)">
+                    <div class="faq-question">
+                        <h4>Posso cancelar a qualquer momento?</h4>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        Sim! Você pode cancelar sua assinatura quando quiser. Se cancelar, sua loja continuará funcionando até o final do período pago.
+                    </div>
+                </div>
+
+                <div class="faq-item" onclick="toggleFaq(this)">
+                    <div class="faq-question">
+                        <h4>O domínio próprio está incluso?</h4>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        Apenas no plano Ilimitado. Nos outros planos, você terá um link ngolashop.com/sualoja. No plano Ilimitado, pode usar seu próprio domínio.
+                    </div>
+                </div>
+
+                <div class="faq-item" onclick="toggleFaq(this)">
+                    <div class="faq-question">
+                        <h4>Como funciona o suporte VIP?</h4>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        O suporte VIP do plano Ilimitado oferece atendimento prioritário 24h por dia, 7 dias por semana, com tempo de resposta de até 1 hora.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Depoimentos -->
+        <div class="testimonials-section" data-aos="fade-up">
+            <div class="comparison-title">
+                <h2>O que nossos clientes dizem</h2>
+                <p>Mais de 1.500 vendedores confiam na NgolaShop</p>
+            </div>
+
+            <div class="testimonials-grid">
+                <div class="testimonial-card">
+                    <div class="testimonial-stars">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <p class="testimonial-text">"Comecei com o plano grátis e depois migrei para o Profissional. Valeu cada kwanza! Minhas vendas aumentaram 200%."</p>
+                    <div class="testimonial-author">
+                        <div class="testimonial-avatar">AM</div>
+                        <div class="testimonial-info">
+                            <h4>Ana Maria</h4>
+                            <p>Plano Profissional</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="testimonial-card">
+                    <div class="testimonial-stars">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <p class="testimonial-text">"O plano Ilimitado com domínio próprio deu um ar profissional à minha loja. Meus clientes adoram!"</p>
+                    <div class="testimonial-author">
+                        <div class="testimonial-avatar">JP</div>
+                        <div class="testimonial-info">
+                            <h4>João Paulo</h4>
+                            <p>Plano Ilimitado</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="testimonial-card">
+                    <div class="testimonial-stars">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star-half-alt"></i>
+                    </div>
+                    <p class="testimonial-text">"O plano grátis foi perfeito para começar. Agora estou no Profissional e não pretendo parar de crescer!"</p>
+                    <div class="testimonial-author">
+                        <div class="testimonial-avatar">FL</div>
+                        <div class="testimonial-info">
+                            <h4>Fátima Lopes</h4>
+                            <p>Plano Profissional</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CTA Final -->
+        <div class="cta-section" data-aos="fade-up">
+            <h2>Pronto para começar a vender?</h2>
+            <p>Crie sua loja grátis agora e veja como é fácil vender online em Angola.</p>
+            <a href="criar-loja.html" class="btn">Quero minha loja grátis</a>
+            <p class="small">Não precisa de cartão de crédito. Leva menos de 2 minutos.</p>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div>
+                <div class="footer-logo">NgolaShop</div>
+                <p class="footer-about">A plataforma nº1 de Angola para criar lojas online e vender pelo WhatsApp. Simples, rápido e sem complicação.</p>
+                <div class="social-links">
+                    <a href="#" target="_blank"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#" target="_blank"><i class="fab fa-instagram"></i></a>
+                    <a href="#" target="_blank"><i class="fab fa-whatsapp"></i></a>
+                    <a href="#" target="_blank"><i class="fab fa-linkedin-in"></i></a>
+                </div>
+            </div>
+            <div class="footer-links">
+                <h4>Produto</h4>
+                <ul>
+                    <li><a href="index.html#como-funciona">Como funciona</a></li>
+                    <li><a href="planos.html">Planos e preços</a></li>
+                    <li><a href="index.html#melhores-lojas">Melhores lojas</a></li>
+                    <li><a href="criar-loja.html">Criar loja</a></li>
+                </ul>
+            </div>
+            <div class="footer-links">
+                <h4>Suporte</h4>
+                <ul>
+                    <li><a href="#">Central de ajuda</a></li>
+                    <li><a href="#">Contato</a></li>
+                    <li><a href="#">Termos de uso</a></li>
+                    <li><a href="#">Privacidade</a></li>
+                </ul>
+            </div>
+            <div class="footer-links">
+                <h4>Contato</h4>
+                <ul>
+                    <li><i class="fab fa-whatsapp"></i> <a href="https://wa.me/244972481656">972 481 656</a></li>
+                    <li><i class="fas fa-envelope"></i> suporte@ngolashop.com</li>
+                    <li><i class="fas fa-map-marker-alt"></i> Luanda, Angola</li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>© 2026 NgolaShop. Feito com ❤️ em Angola para angolanos.</p>
+        </div>
+    </footer>
+
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        // Inicializar AOS
+        AOS.init({
+            duration: 800,
+            once: true,
+            offset: 100
+        });
+
+        // Header scroll effect
+        window.addEventListener('scroll', function() {
+            const header = document.getElementById('header');
+            if (window.scrollY > 50) {
+                header.classList.add('scrolled');
+            } else {
+                header.classList.remove('scrolled');
+            }
+        });
+
+        // Billing toggle (mensal/anual)
+        let isYearly = false;
+
+        function toggleBilling() {
+            const toggle = document.getElementById('billingToggle');
+            toggle.classList.toggle('active');
+            isYearly = !isYearly;
+
+            // Mostrar/esconder preços
+            const monthlyPrices = document.querySelectorAll('.plan-price');
+            const yearlyPrices = document.querySelectorAll('.plan-price-yearly');
+
+            monthlyPrices.forEach(price => {
+                price.style.display = isYearly ? 'none' : 'block';
+            });
+
+            yearlyPrices.forEach(price => {
+                price.style.display = isYearly ? 'block' : 'none';
+            });
+        }
+
+        // Selecionar plano
+        function selectPlan(plan) {
+            // Mostrar loading
+            document.getElementById('loadingSpinner').style.display = 'flex';
+            
+            // Verificar se usuário está logado
+            const userData = localStorage.getItem('userData');
+            
+            setTimeout(() => {
+                if (userData) {
+                    // Usuário já tem conta, redirecionar para upgrade
+                    localStorage.setItem('upgradePlan', plan);
+                    showToast('Redirecionando para atualização de plano...', 'success');
+                    setTimeout(() => {
+                        window.location.href = 'configurar-loja.html?upgrade=' + plan;
+                    }, 1500);
+                } else {
+                    // Novo usuário, redirecionar para criar conta com plano selecionado
+                    window.location.href = 'criar-loja.html?plano=' + plan;
+                }
+                document.getElementById('loadingSpinner').style.display = 'none';
+            }, 1000);
+        }
+
+        // Toggle FAQ
+        function toggleFaq(element) {
+            element.classList.toggle('active');
+        }
+
+        // Mostrar toast
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            const toastIcon = document.getElementById('toastIcon');
+            const toastMessage = document.getElementById('toastMessage');
+            
+            toast.className = `toast ${type}`;
+            toastIcon.className = `fas ${type === 'success' ? 'fa-check-circle' : type === 'warning' ? 'fa-exclamation-triangle' : 'fa-exclamation-circle'}`;
+            toastMessage.textContent = message;
+            
+            toast.style.display = 'flex';
+            
+            setTimeout(() => {
+                toast.style.display = 'none';
+            }, 5000);
+        }
+
+        // Mobile menu
+        function toggleMobileMenu() {
+            // Implementar menu mobile
+            alert('Menu mobile será implementado em breve');
+        }
+
+        // Smooth scroll para links internos
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Verificar parâmetro de plano na URL (quando vem de upgrade)
+        window.addEventListener('load', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const upgrade = urlParams.get('upgrade');
+            
+            if (upgrade) {
+                showToast(`Faça upgrade para o plano ${upgrade}`, 'warning');
+            }
+        });
+    </script>
+</body>
+</html>

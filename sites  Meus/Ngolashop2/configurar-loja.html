@@ -1,0 +1,1596 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configurar Loja - NgolaShop - Plano Básico</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #10B981;
+            --primary-dark: #059669;
+            --primary-light: #D1FAE5;
+            --goku-silver: #94A3B8;
+            --goku-silver-light: #CBD5E1;
+            --goku-silver-dark: #64748B;
+            --goku-blue: #60A5FA;
+            --gradient-goku: linear-gradient(135deg, #10B981, #60A5FA, #94A3B8);
+            --secondary: #1E293B;
+            --secondary-light: #334155;
+            --success: #25D366;
+            --success-dark: #128C7E;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --text: #1E293B;
+            --text-light: #64748B;
+            --light: #F8FAFC;
+            --white: #ffffff;
+            --shadow-sm: 0 2px 8px rgba(16,185,129,0.1);
+            --shadow-md: 0 4px 20px rgba(16,185,129,0.15);
+            --shadow-lg: 0 10px 40px rgba(16,185,129,0.2);
+            --shadow-hover: 0 20px 60px rgba(16,185,129,0.25);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            color: var(--text);
+            line-height: 1.6;
+            overflow-x: hidden;
+            background: var(--light);
+        }
+
+        /* Loading Spinner */
+        .loading-spinner {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255,255,255,0.9);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            backdrop-filter: blur(5px);
+        }
+
+        .spinner {
+            width: 60px;
+            height: 60px;
+            border: 5px solid var(--light);
+            border-top-color: var(--primary);
+            border-right-color: var(--goku-blue);
+            border-bottom-color: var(--goku-silver);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Toast Notification */
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            border-radius: 12px;
+            padding: 16px 24px;
+            box-shadow: var(--shadow-lg);
+            display: none;
+            align-items: center;
+            gap: 12px;
+            z-index: 10000;
+            animation: slideIn 0.3s ease;
+            border-left: 4px solid var(--primary);
+            max-width: 400px;
+        }
+
+        .toast.error {
+            border-left-color: var(--danger);
+        }
+
+        .toast.success {
+            border-left-color: var(--success);
+        }
+
+        .toast.warning {
+            border-left-color: var(--warning);
+        }
+
+        .toast i {
+            font-size: 20px;
+        }
+
+        .toast.error i {
+            color: var(--danger);
+        }
+
+        .toast.success i {
+            color: var(--success);
+        }
+
+        .toast.warning i {
+            color: var(--warning);
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        /* Header */
+        .header {
+            background: white;
+            box-shadow: var(--shadow-sm);
+            padding: 20px 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            font-size: 28px;
+            font-weight: 800;
+            background: var(--gradient-goku);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-decoration: none;
+        }
+
+        .progress-container {
+            display: flex;
+            align-items: center;
+            gap: 40px;
+        }
+
+        .progress-steps {
+            display: flex;
+            gap: 30px;
+        }
+
+        .progress-step {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--text-light);
+            font-size: 14px;
+        }
+
+        .progress-step.active {
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .step-number {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: #e2e8f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 14px;
+        }
+
+        .progress-step.active .step-number {
+            background: var(--primary);
+            color: white;
+        }
+
+        .progress-step.completed .step-number {
+            background: var(--success);
+            color: white;
+        }
+
+        .plan-badge {
+            background: linear-gradient(135deg, #10B981, #3B82F6);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        /* Main Container */
+        .main-container {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        /* Welcome Card */
+        .welcome-card {
+            background: white;
+            border-radius: 24px;
+            padding: 40px;
+            margin-bottom: 30px;
+            box-shadow: var(--shadow-md);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .welcome-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(135deg, #10B981, #3B82F6);
+        }
+
+        .welcome-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 30px;
+        }
+
+        .welcome-text h1 {
+            font-size: 32px;
+            color: var(--secondary);
+            margin-bottom: 10px;
+        }
+
+        .welcome-text p {
+            color: var(--text-light);
+            font-size: 16px;
+        }
+
+        .plan-info {
+            background: #D1FAE5;
+            padding: 20px 30px;
+            border-radius: 16px;
+            text-align: center;
+        }
+
+        .plan-name {
+            font-size: 20px;
+            font-weight: 700;
+            color: #10B981;
+            margin-bottom: 5px;
+        }
+
+        .plan-limit {
+            font-size: 14px;
+            color: var(--text-light);
+        }
+
+        /* Config Sections */
+        .config-section {
+            background: white;
+            border-radius: 24px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: var(--shadow-md);
+            position: relative;
+            transition: all 0.3s;
+            border: 2px solid #D1FAE5;
+            background: linear-gradient(135deg, white, #F0FDF4);
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .section-header h2 {
+            font-size: 20px;
+            color: var(--secondary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-header h2 i {
+            color: var(--primary);
+        }
+
+        .section-status {
+            background: var(--success);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 50px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .section-status.pending {
+            background: var(--warning);
+        }
+
+        /* Form Grid */
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group.full-width {
+            grid-column: span 2;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--secondary);
+            font-size: 14px;
+        }
+
+        .form-group label i {
+            color: var(--primary);
+            margin-right: 8px;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 15px;
+            transition: all 0.3s;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(16,185,129,0.1);
+        }
+
+        /* Upload Area */
+        .upload-area {
+            border: 2px dashed #e2e8f0;
+            border-radius: 16px;
+            padding: 30px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+            min-height: 200px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .upload-area:hover {
+            border-color: var(--primary);
+            background: var(--primary-light);
+        }
+
+        .upload-area i {
+            font-size: 40px;
+            color: var(--primary);
+            margin-bottom: 15px;
+        }
+
+        .upload-area p {
+            color: var(--text-light);
+            margin-bottom: 10px;
+        }
+
+        .upload-area small {
+            color: var(--text-light);
+            font-size: 12px;
+        }
+
+        .upload-preview {
+            max-width: 100%;
+            max-height: 150px;
+            border-radius: 12px;
+            margin-bottom: 10px;
+            display: none;
+        }
+
+        .upload-area.has-image .upload-preview {
+            display: block;
+        }
+
+        .upload-area.has-image i,
+        .upload-area.has-image p,
+        .upload-area.has-image small {
+            display: none;
+        }
+
+        .remove-image {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: var(--danger);
+            color: white;
+            border: none;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+        }
+
+        .upload-area.has-image:hover .remove-image {
+            display: flex;
+        }
+
+        .remove-image:hover {
+            background: #dc2626;
+        }
+
+        /* Font Grid */
+        .font-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .font-option {
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .font-option:hover {
+            border-color: var(--primary);
+            background: var(--primary-light);
+        }
+
+        .font-option.selected {
+            border-color: var(--primary);
+            background: var(--primary-light);
+        }
+
+        .font-option .font-preview {
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+
+        .font-option span {
+            font-size: 14px;
+            color: var(--text-light);
+        }
+
+        /* Products Grid */
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .product-card {
+            background: var(--light);
+            border-radius: 16px;
+            padding: 20px;
+            position: relative;
+        }
+
+        .product-image {
+            width: 100%;
+            height: 120px;
+            background: #e2e8f0;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-light);
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .product-image:hover {
+            background: var(--primary-light);
+            color: var(--primary);
+        }
+
+        .product-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .product-image i {
+            font-size: 30px;
+        }
+
+        .product-input {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .product-remove {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: white;
+            border: none;
+            color: var(--danger);
+            cursor: pointer;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: var(--shadow-sm);
+            z-index: 10;
+        }
+
+        .product-remove:hover {
+            background: var(--danger);
+            color: white;
+        }
+
+        .add-product {
+            background: var(--primary-light);
+            border: 2px dashed var(--primary);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        .add-product i {
+            font-size: 30px;
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+
+        .limit-warning {
+            background: #D1FAE5;
+            color: #065F46;
+            padding: 12px;
+            border-radius: 12px;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        /* Payment Methods */
+        .payment-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+        }
+
+        .payment-card {
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .payment-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-2px);
+        }
+
+        .payment-card.selected {
+            border-color: var(--primary);
+            background: var(--primary-light);
+        }
+
+        .payment-card.selected::after {
+            content: '✓';
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: var(--primary);
+            color: white;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+        }
+
+        .payment-card i {
+            font-size: 30px;
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+
+        .payment-card h4 {
+            margin-bottom: 5px;
+        }
+
+        .payment-card p {
+            font-size: 12px;
+            color: var(--text-light);
+        }
+
+        .whatsapp-config {
+            background: var(--light);
+            border-radius: 16px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
+            margin-top: 40px;
+        }
+
+        .btn {
+            padding: 16px 32px;
+            border-radius: 16px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s;
+            display: inline-block;
+            font-size: 15px;
+            cursor: pointer;
+            border: none;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #10B981, #3B82F6);
+            color: white;
+            background-size: 200% auto;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            background-position: right center;
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+
+        .btn-outline {
+            border: 2px solid #10B981;
+            color: #10B981;
+            background: transparent;
+        }
+
+        .btn-outline:hover {
+            background: linear-gradient(135deg, #10B981, #3B82F6);
+            color: white;
+            border-color: transparent;
+            transform: translateY(-2px);
+        }
+
+        .btn-large {
+            padding: 16px 40px;
+            font-size: 16px;
+        }
+
+        /* Upgrade Banner */
+        .upgrade-banner {
+            background: linear-gradient(135deg, #f59e0b, #fbbf24);
+            color: white;
+            padding: 20px;
+            border-radius: 16px;
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .upgrade-banner h3 {
+            font-size: 18px;
+            margin-bottom: 5px;
+        }
+
+        .upgrade-banner p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .upgrade-banner .btn {
+            background: white;
+            color: #f59e0b;
+        }
+
+        .upgrade-banner .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+
+        /* Modelo Especial para Plano Básico */
+        .basico-modelo {
+            background: linear-gradient(135deg, #F0FDF4, #EFF6FF);
+            border-radius: 30px;
+            padding: 30px;
+            margin-bottom: 30px;
+            border: 2px solid #10B981;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .basico-modelo::before {
+            content: '';
+            position: absolute;
+            top: -50px;
+            right: -50px;
+            width: 200px;
+            height: 200px;
+            background: rgba(16, 185, 129, 0.1);
+            border-radius: 50%;
+        }
+
+        .basico-modelo::after {
+            content: '';
+            position: absolute;
+            bottom: -50px;
+            left: -50px;
+            width: 200px;
+            height: 200px;
+            background: rgba(59, 130, 246, 0.1);
+            border-radius: 50%;
+        }
+
+        .basico-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .basico-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #10B981, #3B82F6);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 30px;
+        }
+
+        .basico-header h3 {
+            font-size: 24px;
+            color: #10B981;
+            font-weight: 700;
+        }
+
+        .basico-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .basico-card {
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: var(--shadow-md);
+            transition: all 0.3s;
+        }
+
+        .basico-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .basico-card i {
+            font-size: 30px;
+            color: #10B981;
+            margin-bottom: 15px;
+        }
+
+        .basico-card h4 {
+            font-size: 16px;
+            margin-bottom: 10px;
+            color: var(--secondary);
+        }
+
+        .basico-card p {
+            font-size: 13px;
+            color: var(--text-light);
+            margin-bottom: 15px;
+        }
+
+        .basico-card .btn-small {
+            background: #10B981;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 30px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .basico-card .btn-small:hover {
+            background: #059669;
+            transform: scale(1.05);
+        }
+
+        /* Progress indicators */
+        .config-indicator {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin: 30px 0;
+            padding: 20px;
+            background: white;
+            border-radius: 50px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .indicator-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--text-light);
+        }
+
+        .indicator-item.completed {
+            color: var(--success);
+        }
+
+        .indicator-item i {
+            font-size: 20px;
+        }
+
+        /* Responsividade */
+        @media (max-width: 768px) {
+            .progress-container {
+                display: none;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .form-group.full-width {
+                grid-column: span 1;
+            }
+
+            .products-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .payment-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .font-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+
+            .basico-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .config-indicator {
+                flex-direction: column;
+                gap: 15px;
+                border-radius: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Spinner -->
+    <div class="loading-spinner" id="loadingSpinner">
+        <div class="spinner"></div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast" id="toast">
+        <i class="fas" id="toastIcon"></i>
+        <span id="toastMessage"></span>
+    </div>
+
+    <!-- Header -->
+    <header class="header">
+        <a href="/" class="logo">NgolaShop</a>
+        <div class="progress-container">
+            <div class="progress-steps">
+                <div class="progress-step active" id="step1">
+                    <span class="step-number">1</span>
+                    <span>Configurar Loja</span>
+                </div>
+                <div class="progress-step" id="step2">
+                    <span class="step-number">2</span>
+                    <span>Adicionar Produtos</span>
+                </div>
+                <div class="progress-step" id="step3">
+                    <span class="step-number">3</span>
+                    <span>Publicar</span>
+                </div>
+            </div>
+            <div class="plan-badge" id="planBadge">Plano Básico</div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Welcome Card -->
+        <div class="welcome-card">
+            <div class="welcome-content">
+                <div class="welcome-text">
+                    <h1>Bem-vindo ao Plano Básico!</h1>
+                    <p>Configure sua loja com os recursos essenciais para começar a vender. <strong>Plano Básico</strong> - Simples e eficiente.</p>
+                </div>
+                <div class="plan-info">
+                    <div class="plan-name">Básico</div>
+                    <div class="plan-limit" id="planLimit">5 produtos • Link ngolashop.com/sualoja</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Progress Indicator -->
+        <div class="config-indicator">
+            <div class="indicator-item" id="indicatorStep1">
+                <i class="fas fa-circle"></i>
+                <span>Informações da Loja</span>
+            </div>
+            <div class="indicator-item" id="indicatorStep2">
+                <i class="fas fa-circle"></i>
+                <span>Produtos</span>
+            </div>
+            <div class="indicator-item" id="indicatorStep3">
+                <i class="fas fa-circle"></i>
+                <span>WhatsApp</span>
+            </div>
+        </div>
+
+        <!-- Upgrade Banner (para plano básico) -->
+        <div class="upgrade-banner" id="upgradeBanner">
+            <div>
+                <h3>Quer mais recursos?</h3>
+                <p>Faça upgrade para o plano Profissional ou Ilimitado e tenha acesso a recursos premium como mais produtos e personalização avançada.</p>
+            </div>
+            <button class="btn" onclick="upgradePlan()">Fazer Upgrade</button>
+        </div>
+
+        <!-- Modelo Especial para Plano Básico -->
+        <div class="basico-modelo" id="basicoModelo">
+            <div class="basico-header">
+                <div class="basico-icon">
+                    <i class="fas fa-rocket"></i>
+                </div>
+                <h3>Comece com o pé direito!</h3>
+            </div>
+            <p style="margin-bottom: 20px; color: var(--text-light);">No Plano Básico você tem tudo o que precisa para iniciar suas vendas online. Complete as informações abaixo e publique sua loja em minutos.</p>
+            
+            <div class="basico-grid">
+                <div class="basico-card">
+                    <i class="fas fa-store"></i>
+                    <h4>Informações da Loja</h4>
+                    <p>Defina o nome, categoria e descrição da sua loja</p>
+                    <button class="btn-small" onclick="scrollToSection('sectionInfo')">Configurar</button>
+                </div>
+                <div class="basico-card">
+                    <i class="fas fa-box"></i>
+                    <h4>Produtos</h4>
+                    <p>Adicione até 5 produtos com fotos e preços</p>
+                    <button class="btn-small" onclick="scrollToSection('sectionProducts')">Adicionar</button>
+                </div>
+                <div class="basico-card">
+                    <i class="fab fa-whatsapp"></i>
+                    <h4>WhatsApp</h4>
+                    <p>Configure seu número para receber pedidos</p>
+                    <button class="btn-small" onclick="scrollToSection('sectionPayments')">Configurar</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Seção 1: Informações da Loja -->
+        <div class="config-section" id="sectionInfo">
+            <div class="section-header">
+                <h2><i class="fas fa-store"></i> Informações da Loja</h2>
+                <span class="section-status pending" id="infoStatus">Pendente</span>
+            </div>
+            
+            <div class="form-grid">
+                <div class="form-group">
+                    <label><i class="fas fa-tag"></i> Nome da Loja</label>
+                    <input type="text" id="storeName" placeholder="Ex: Moda Angolana" value="" oninput="updateProgress()">
+                </div>
+                
+                <div class="form-group">
+                    <label><i class="fas fa-globe"></i> Categoria</label>
+                    <select id="storeCategory" onchange="updateProgress()">
+                        <option value="">Selecione uma categoria</option>
+                        <option value="moda">Moda e Vestuário</option>
+                        <option value="eletronicos">Eletrônicos</option>
+                        <option value="beleza">Beleza e Cosméticos</option>
+                        <option value="alimentacao">Alimentação</option>
+                        <option value="artesanato">Artesanato</option>
+                        <option value="outros">Outros</option>
+                    </select>
+                </div>
+                
+                <div class="form-group full-width">
+                    <label><i class="fas fa-align-left"></i> Descrição da Loja</label>
+                    <textarea id="storeDescription" rows="4" placeholder="Fale sobre sua loja, seus produtos e sua história..." onchange="updateProgress()"></textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- Seção 2: Logo -->
+        <div class="config-section" id="sectionLogo">
+            <div class="section-header">
+                <h2><i class="fas fa-image"></i> Logo da Loja</h2>
+                <span class="section-status pending" id="logoStatus">Opcional</span>
+            </div>
+            
+            <div class="form-group">
+                <label><i class="fas fa-camera"></i> Logotipo</label>
+                <div class="upload-area" id="logoUpload" onclick="triggerLogoUpload()">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    <p>Clique para fazer upload do logo</p>
+                    <small>PNG, JPG ou SVG (max. 2MB)</small>
+                    <img class="upload-preview" id="logoPreview" src="">
+                    <button class="remove-image" onclick="removeLogo(event)"><i class="fas fa-times"></i></button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Seção 3: Fonte da Loja -->
+        <div class="config-section" id="sectionFont">
+            <div class="section-header">
+                <h2><i class="fas fa-font"></i> Fonte da Loja</h2>
+                <span class="section-status" id="fontStatus">Selecionado: Inter</span>
+            </div>
+            
+            <p style="color: var(--text-light); margin-bottom: 20px;">Escolha a fonte que melhor representa sua marca:</p>
+            
+            <div class="font-grid" id="fontGrid">
+                <div class="font-option selected" onclick="selectFont('Inter')">
+                    <div class="font-preview" style="font-family: 'Inter';">Aa</div>
+                    <span>Inter</span>
+                </div>
+                <div class="font-option" onclick="selectFont('Poppins')">
+                    <div class="font-preview" style="font-family: 'Poppins';">Aa</div>
+                    <span>Poppins</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Seção 4: Produtos (com limite de 5) -->
+        <div class="config-section" id="sectionProducts">
+            <div class="section-header">
+                <h2><i class="fas fa-box"></i> Seus Produtos</h2>
+                <span class="section-status pending" id="productCount">0/5 produtos</span>
+            </div>
+            
+            <div class="products-grid" id="productsGrid">
+                <!-- Produtos serão adicionados aqui via JavaScript -->
+            </div>
+
+            <div class="limit-warning" id="limitWarning">
+                <i class="fas fa-info-circle"></i>
+                <span id="limitMessage">Você pode adicionar até 5 produtos no plano Básico. Faça upgrade para adicionar mais.</span>
+            </div>
+
+            <button class="btn btn-outline" onclick="addProduct()" id="addProductBtn" style="width: 100%; margin-top: 20px;">
+                <i class="fas fa-plus"></i> Adicionar Produto
+            </button>
+        </div>
+
+        <!-- Seção 5: WhatsApp e Pagamentos -->
+        <div class="config-section" id="sectionPayments">
+            <div class="section-header">
+                <h2><i class="fab fa-whatsapp"></i> WhatsApp e Pagamentos</h2>
+                <span class="section-status pending" id="paymentStatus">Pendente</span>
+            </div>
+            
+            <div class="form-group">
+                <label><i class="fab fa-whatsapp"></i> Número do WhatsApp para vendas</label>
+                <div style="display: flex; gap: 10px;">
+                    <select id="whatsappCode" style="width: 100px; padding: 14px; border: 2px solid #e2e8f0; border-radius: 12px;">
+                        <option value="+244">+244</option>
+                        <option value="+351">+351</option>
+                        <option value="+55">+55</option>
+                    </select>
+                    <input type="tel" id="whatsappNumber" placeholder="923 456 789" style="flex: 1; padding: 14px; border: 2px solid #e2e8f0; border-radius: 12px;" oninput="updateProgress()">
+                </div>
+            </div>
+
+            <div class="whatsapp-config">
+                <h4 style="margin-bottom: 15px;">Mensagem automática:</h4>
+                <div class="form-group">
+                    <textarea id="whatsappMessage" rows="3" placeholder="Olá! Vi este produto na sua loja e gostaria de mais informações...">Olá! Vi este produto na sua loja e gostaria de mais informações sobre *{produto}*.</textarea>
+                </div>
+            </div>
+
+            <h4 style="margin: 20px 0 15px;">Formas de pagamento aceitas:</h4>
+            <div class="payment-grid" id="paymentGrid">
+                <div class="payment-card" onclick="togglePayment('dinheiro')">
+                    <i class="fas fa-money-bill-wave"></i>
+                    <h4>Dinheiro</h4>
+                    <p>Pagamento na entrega</p>
+                </div>
+                <div class="payment-card" onclick="togglePayment('transferencia')">
+                    <i class="fas fa-university"></i>
+                    <h4>Transferência</h4>
+                    <p>Emissão de referência</p>
+                </div>
+                <div class="payment-card" onclick="togglePayment('multicaixa')">
+                    <i class="fas fa-credit-card"></i>
+                    <h4>Multicaixa</h4>
+                    <p>Express e 24 horas</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Botões de Ação -->
+        <div class="action-buttons">
+            <button class="btn btn-outline btn-large" onclick="saveProgress()">
+                <i class="fas fa-save"></i> Salvar Rascunho
+            </button>
+            <button class="btn btn-primary btn-large" onclick="publishStore()" id="publishBtn">
+                <i class="fas fa-check"></i> Publicar Minha Loja
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Dados do usuário
+        let userData = JSON.parse(localStorage.getItem('userData')) || {
+            plan: 'basico',
+            storeName: '',
+            fullName: '',
+            email: '',
+            contact: '',
+            countryCode: '+244'
+        };
+
+        // Estado da configuração
+        let config = {
+            storeInfo: {
+                name: userData.storeName || '',
+                category: '',
+                description: ''
+            },
+            logo: null,
+            font: 'Inter',
+            products: [],
+            whatsapp: {
+                code: userData.countryCode || '+244',
+                number: userData.contact || '',
+                message: 'Olá! Vi este produto na sua loja e gostaria de mais informações sobre *{produto}*.'
+            },
+            payments: []
+        };
+
+        // Limite de produtos
+        const PRODUCT_LIMIT = 5;
+
+        // Inicialização
+        window.addEventListener('load', function() {
+            updatePlanDisplay();
+            loadStoreInfo();
+            renderProducts();
+            updateProductCount();
+            updateProgress();
+            updateFontStatus();
+        });
+
+        // Função para rolar até seção
+        function scrollToSection(sectionId) {
+            const section = document.getElementById(sectionId);
+            if (section) {
+                section.scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+
+        // Atualizar display do plano
+        function updatePlanDisplay() {
+            document.getElementById('planBadge').textContent = 'Plano Básico';
+            document.getElementById('planLimit').textContent = `5 produtos • Link ngolashop.com/sualoja`;
+            document.getElementById('limitMessage').textContent = `Você pode adicionar até ${PRODUCT_LIMIT} produtos no plano Básico. Faça upgrade para adicionar mais.`;
+        }
+
+        // Atualizar progresso das etapas
+        function updateProgress() {
+            // Verificar informações da loja
+            const storeName = document.getElementById('storeName').value;
+            const storeCategory = document.getElementById('storeCategory').value;
+            
+            if (storeName && storeCategory) {
+                document.getElementById('infoStatus').textContent = 'Completo';
+                document.getElementById('infoStatus').classList.remove('pending');
+                document.getElementById('indicatorStep1').classList.add('completed');
+                document.getElementById('indicatorStep1').innerHTML = '<i class="fas fa-check-circle"></i><span>Informações da Loja</span>';
+                document.getElementById('step1').classList.add('completed');
+            } else {
+                document.getElementById('infoStatus').textContent = 'Pendente';
+                document.getElementById('infoStatus').classList.add('pending');
+                document.getElementById('indicatorStep1').classList.remove('completed');
+                document.getElementById('indicatorStep1').innerHTML = '<i class="fas fa-circle"></i><span>Informações da Loja</span>';
+                document.getElementById('step1').classList.remove('completed');
+            }
+
+            // Verificar produtos
+            if (config.products.length > 0) {
+                document.getElementById('indicatorStep2').classList.add('completed');
+                document.getElementById('indicatorStep2').innerHTML = '<i class="fas fa-check-circle"></i><span>Produtos</span>';
+                document.getElementById('step2').classList.add('completed');
+            } else {
+                document.getElementById('indicatorStep2').classList.remove('completed');
+                document.getElementById('indicatorStep2').innerHTML = '<i class="fas fa-circle"></i><span>Produtos</span>';
+                document.getElementById('step2').classList.remove('completed');
+            }
+
+            // Verificar WhatsApp
+            const whatsappNumber = document.getElementById('whatsappNumber').value;
+            if (whatsappNumber && config.payments.length > 0) {
+                document.getElementById('paymentStatus').textContent = 'Completo';
+                document.getElementById('paymentStatus').classList.remove('pending');
+                document.getElementById('indicatorStep3').classList.add('completed');
+                document.getElementById('indicatorStep3').innerHTML = '<i class="fas fa-check-circle"></i><span>WhatsApp</span>';
+                document.getElementById('step3').classList.add('completed');
+            } else {
+                document.getElementById('paymentStatus').textContent = 'Pendente';
+                document.getElementById('paymentStatus').classList.add('pending');
+                document.getElementById('indicatorStep3').classList.remove('completed');
+                document.getElementById('indicatorStep3').innerHTML = '<i class="fas fa-circle"></i><span>WhatsApp</span>';
+                document.getElementById('step3').classList.remove('completed');
+            }
+        }
+
+        // Carregar informações da loja
+        function loadStoreInfo() {
+            if (userData.storeName) {
+                document.getElementById('storeName').value = userData.storeName;
+                config.storeInfo.name = userData.storeName;
+            }
+            if (userData.contact) {
+                document.getElementById('whatsappNumber').value = userData.contact;
+            }
+        }
+
+        // Funções de upload de logo
+        function triggerLogoUpload() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = 'image/*';
+            input.onchange = handleLogoUpload;
+            input.click();
+        }
+
+        function handleLogoUpload(e) {
+            if (e.target.files && e.target.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(ev) {
+                    config.logo = ev.target.result;
+                    document.getElementById('logoPreview').src = ev.target.result;
+                    document.getElementById('logoUpload').classList.add('has-image');
+                    showToast('Logo carregado com sucesso!', 'success');
+                };
+                reader.readAsDataURL(e.target.files[0]);
+            }
+        }
+
+        function removeLogo(event) {
+            event.stopPropagation();
+            config.logo = null;
+            document.getElementById('logoPreview').src = '';
+            document.getElementById('logoUpload').classList.remove('has-image');
+            showToast('Logo removido', 'success');
+        }
+
+        // Selecionar fonte
+        function selectFont(font) {
+            config.font = font;
+            document.querySelectorAll('.font-option').forEach(opt => opt.classList.remove('selected'));
+            event.currentTarget.classList.add('selected');
+            updateFontStatus();
+            showToast(`Fonte alterada para ${font}`, 'success');
+        }
+
+        function updateFontStatus() {
+            document.getElementById('fontStatus').textContent = `Selecionado: ${config.font}`;
+        }
+
+        // Gerenciar produtos
+        function renderProducts() {
+            const grid = document.getElementById('productsGrid');
+            grid.innerHTML = '';
+            
+            config.products.forEach((product, index) => {
+                const productCard = createProductCard(product, index);
+                grid.appendChild(productCard);
+            });
+            
+            // Adicionar card vazio se não atingiu o limite
+            if (config.products.length < PRODUCT_LIMIT) {
+                const addCard = document.createElement('div');
+                addCard.className = 'product-card add-product';
+                addCard.onclick = addProduct;
+                addCard.innerHTML = `
+                    <i class="fas fa-plus"></i>
+                    <span>Adicionar Produto</span>
+                `;
+                grid.appendChild(addCard);
+            }
+            
+            updateProductCount();
+        }
+
+        function createProductCard(product, index) {
+            const card = document.createElement('div');
+            card.className = 'product-card';
+            
+            let imageHtml = '';
+            if (product.image) {
+                imageHtml = `<img src="${product.image}" style="width: 100%; height: 120px; object-fit: cover; border-radius: 12px;">`;
+            } else {
+                imageHtml = `<div class="product-image" onclick="uploadProductImage(${index})"><i class="fas fa-camera"></i></div>`;
+            }
+            
+            card.innerHTML = `
+                ${imageHtml}
+                <input type="text" class="product-input" placeholder="Nome do produto" value="${product?.name || ''}" onchange="updateProduct(${index}, 'name', this.value)">
+                <input type="text" class="product-input" placeholder="Preço (Kz)" value="${product?.price || ''}" onchange="updateProduct(${index}, 'price', this.value)">
+                <textarea class="product-input" placeholder="Descrição" rows="2" onchange="updateProduct(${index}, 'description', this.value)">${product?.description || ''}</textarea>
+                <button class="product-remove" onclick="removeProduct(${index})"><i class="fas fa-times"></i></button>
+            `;
+            
+            return card;
+        }
+
+        function addProduct() {
+            if (config.products.length >= PRODUCT_LIMIT) {
+                showToast(`Limite de ${PRODUCT_LIMIT} produtos atingido! Faça upgrade para adicionar mais.`, 'warning');
+                return;
+            }
+            
+            config.products.push({
+                name: '',
+                price: '',
+                description: '',
+                image: null
+            });
+            
+            renderProducts();
+            updateProgress();
+        }
+
+        function updateProduct(index, field, value) {
+            if (index !== null && config.products[index]) {
+                config.products[index][field] = value;
+            }
+        }
+
+        function removeProduct(index) {
+            config.products.splice(index, 1);
+            renderProducts();
+            updateProgress();
+        }
+
+        function uploadProductImage(index) {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = 'image/*';
+            
+            input.onchange = function(e) {
+                if (e.target.files && e.target.files[0]) {
+                    const reader = new FileReader();
+                    
+                    reader.onload = function(ev) {
+                        config.products[index].image = ev.target.result;
+                        renderProducts();
+                        showToast('Imagem do produto carregada!', 'success');
+                    };
+                    
+                    reader.readAsDataURL(e.target.files[0]);
+                }
+            };
+            
+            input.click();
+        }
+
+        function updateProductCount() {
+            const count = config.products.length;
+            document.getElementById('productCount').textContent = `${count}/${PRODUCT_LIMIT} produtos`;
+        }
+
+        // Gerenciar pagamentos
+        function togglePayment(type) {
+            const card = event.currentTarget;
+            const index = config.payments.indexOf(type);
+            
+            if (index === -1) {
+                config.payments.push(type);
+                card.classList.add('selected');
+            } else {
+                config.payments.splice(index, 1);
+                card.classList.remove('selected');
+            }
+            
+            updateProgress();
+            showToast(`Método de pagamento ${index === -1 ? 'adicionado' : 'removido'}!`, 'success');
+        }
+
+        // Salvar progresso
+        function saveProgress() {
+            // Atualizar informações da loja
+            config.storeInfo.name = document.getElementById('storeName').value;
+            config.storeInfo.category = document.getElementById('storeCategory').value;
+            config.storeInfo.description = document.getElementById('storeDescription').value;
+            
+            // Atualizar WhatsApp
+            config.whatsapp.code = document.getElementById('whatsappCode').value;
+            config.whatsapp.number = document.getElementById('whatsappNumber').value;
+            config.whatsapp.message = document.getElementById('whatsappMessage').value;
+            
+            // Salvar no localStorage
+            localStorage.setItem('storeConfig', JSON.stringify(config));
+            
+            showToast('Progresso salvo com sucesso!', 'success');
+        }
+
+        // Publicar loja
+        async function publishStore() {
+            // Validar campos obrigatórios
+            const storeName = document.getElementById('storeName').value;
+            const storeCategory = document.getElementById('storeCategory').value;
+            const whatsappNumber = document.getElementById('whatsappNumber').value;
+            
+            if (!storeName) {
+                showToast('Por favor, defina o nome da sua loja', 'error');
+                return;
+            }
+            
+            if (!storeCategory) {
+                showToast('Por favor, selecione uma categoria', 'error');
+                return;
+            }
+            
+            if (!whatsappNumber) {
+                showToast('Por favor, informe seu WhatsApp para vendas', 'error');
+                return;
+            }
+            
+            if (config.payments.length === 0) {
+                showToast('Selecione pelo menos uma forma de pagamento', 'warning');
+                return;
+            }
+            
+            // Mostrar loading
+            document.getElementById('loadingSpinner').style.display = 'flex';
+            
+            try {
+                // Salvar configuração final
+                saveProgress();
+                
+                // Simular publicação
+                await new Promise(resolve => setTimeout(resolve, 2000));
+                
+                // Marcar como configurado
+                localStorage.setItem('storeConfigured', 'true');
+                
+                showToast('Loja publicada com sucesso! Redirecionando...', 'success');
+                
+                // Redirecionar para a loja
+                setTimeout(() => {
+                    window.location.href = '/minha-loja.html';
+                }, 2000);
+                
+            } catch (error) {
+                showToast('Erro ao publicar loja. Tente novamente.', 'error');
+                document.getElementById('loadingSpinner').style.display = 'none';
+            }
+        }
+
+        // Upgrade de plano
+        function upgradePlan() {
+            showToast('Redirecionando para página de planos...', 'success');
+            setTimeout(() => {
+                window.location.href = '/planos.html';
+            }, 1500);
+        }
+
+        // Função para mostrar toast
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            const toastIcon = document.getElementById('toastIcon');
+            const toastMessage = document.getElementById('toastMessage');
+            
+            toast.className = `toast ${type}`;
+            toastIcon.className = `fas ${type === 'success' ? 'fa-check-circle' : type === 'warning' ? 'fa-exclamation-triangle' : 'fa-exclamation-circle'}`;
+            toastMessage.textContent = message;
+            
+            toast.style.display = 'flex';
+            
+            setTimeout(() => {
+                toast.style.display = 'none';
+            }, 5000);
+        }
+
+        // Formatar telefone
+        document.getElementById('whatsappNumber')?.addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            if (value.length > 9) value = value.slice(0, 9);
+            
+            if (value.length > 6) {
+                value = value.replace(/(\d{3})(\d{3})(\d{0,3})/, '$1 $2 $3');
+            } else if (value.length > 3) {
+                value = value.replace(/(\d{3})(\d{0,3})/, '$1 $2');
+            }
+            
+            e.target.value = value.trim();
+            updateProgress();
+        });
+    </script>
+</body>
+</html>

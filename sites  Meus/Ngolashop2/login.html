@@ -1,0 +1,963 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Entrar - NgolaShop</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #3B82F6;
+            --primary-dark: #2563EB;
+            --primary-light: #DBEAFE;
+            --goku-silver: #94A3B8;
+            --goku-blue: #60A5FA;
+            --gradient-goku: linear-gradient(135deg, #3B82F6, #60A5FA, #94A3B8);
+            --secondary: #1E293B;
+            --secondary-light: #334155;
+            --success: #25D366;
+            --success-dark: #128C7E;
+            --danger: #ef4444;
+            --text: #1E293B;
+            --text-light: #64748B;
+            --light: #F8FAFC;
+            --white: #ffffff;
+            --shadow-sm: 0 2px 8px rgba(59,130,246,0.1);
+            --shadow-md: 0 4px 20px rgba(59,130,246,0.15);
+            --shadow-lg: 0 10px 40px rgba(59,130,246,0.2);
+            --shadow-hover: 0 20px 60px rgba(59,130,246,0.25);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            color: var(--text);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Loading Spinner */
+        .loading-spinner {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255,255,255,0.9);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            backdrop-filter: blur(5px);
+        }
+
+        .spinner {
+            width: 60px;
+            height: 60px;
+            border: 5px solid var(--light);
+            border-top-color: var(--primary);
+            border-right-color: var(--goku-blue);
+            border-bottom-color: var(--goku-silver);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Toast Notification */
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            border-radius: 12px;
+            padding: 16px 24px;
+            box-shadow: var(--shadow-lg);
+            display: none;
+            align-items: center;
+            gap: 12px;
+            z-index: 10000;
+            animation: slideIn 0.3s ease;
+            border-left: 4px solid var(--primary);
+            max-width: 400px;
+        }
+
+        .toast.error {
+            border-left-color: var(--danger);
+        }
+
+        .toast.success {
+            border-left-color: var(--success);
+        }
+
+        .toast i {
+            font-size: 20px;
+        }
+
+        .toast.error i {
+            color: var(--danger);
+        }
+
+        .toast.success i {
+            color: var(--success);
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .login-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #1E293B, var(--primary), var(--goku-silver));
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .login-container::before {
+            content: '';
+            position: absolute;
+            width: 200%;
+            height: 200%;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" fill="white" opacity="0.05"/><circle cx="30" cy="30" r="10" fill="%2360A5FA" opacity="0.1"/></svg>');
+            animation: rotate 60s linear infinite;
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .login-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 32px;
+            padding: 50px 40px;
+            max-width: 480px;
+            width: 100%;
+            box-shadow: var(--shadow-lg);
+            position: relative;
+            overflow: hidden;
+            z-index: 2;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .login-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--gradient-goku);
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .logo {
+            font-size: 36px;
+            font-weight: 800;
+            background: var(--gradient-goku);
+            -webkit-background-clip: text;
+            background-clip: text; /* CORREÇÃO: Adicionado */
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 20px;
+            display: inline-block;
+        }
+
+        .login-header h2 {
+            font-size: 32px;
+            color: var(--secondary);
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .login-header p {
+            color: var(--text-light);
+            font-size: 16px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+            position: relative;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--secondary);
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .form-group label i {
+            color: var(--primary);
+            margin-right: 8px;
+            width: 16px;
+        }
+
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-wrapper i {
+            position: absolute;
+            left: 16px;
+            color: var(--text-light);
+            font-size: 16px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 16px 20px 16px 45px;
+            border: 2px solid #e2e8f0;
+            border-radius: 16px;
+            font-size: 16px;
+            transition: all 0.3s;
+            background: white;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(59,130,246,0.1);
+        }
+
+        .form-group input::placeholder {
+            color: #a0aec0;
+            font-size: 14px;
+        }
+
+        .form-group input.error {
+            border-color: var(--danger);
+            background-color: #FEF2F2;
+        }
+
+        .error-message {
+            color: var(--danger);
+            font-size: 12px;
+            margin-top: 5px;
+            display: none;
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 16px;
+            background: none;
+            border: none;
+            color: var(--text-light);
+            cursor: pointer;
+            font-size: 16px;
+            padding: 0;
+        }
+
+        .toggle-password:hover {
+            color: var(--primary);
+        }
+
+        .login-options {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .remember-me {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-light);
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .remember-me input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            accent-color: var(--primary);
+        }
+
+        .forgot-password {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 14px;
+            transition: 0.3s;
+        }
+
+        .forgot-password:hover {
+            color: var(--primary-dark);
+            text-decoration: underline;
+        }
+
+        .login-button {
+            width: 100%;
+            padding: 18px;
+            background: var(--gradient-goku);
+            color: white;
+            border: none;
+            border-radius: 16px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s;
+            margin-bottom: 20px;
+            background-size: 200% auto;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .login-button:hover {
+            background-position: right center;
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .login-button:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            text-align: center;
+            margin: 25px 0;
+            color: var(--text-light);
+            font-size: 14px;
+        }
+
+        .divider::before,
+        .divider::after {
+            content: '';
+            flex: 1;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .divider span {
+            margin: 0 10px;
+        }
+
+        .contact-login {
+            width: 100%;
+            padding: 16px;
+            background: var(--white);
+            color: var(--secondary);
+            border: 2px solid var(--primary-light);
+            border-radius: 16px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 15px;
+        }
+
+        .contact-login:hover {
+            background: var(--primary-light);
+            border-color: var(--primary);
+            transform: translateY(-2px);
+        }
+
+        .contact-login i {
+            color: var(--primary);
+            font-size: 20px;
+        }
+
+        .contact-input-group {
+            display: none;
+            margin-top: 15px;
+            padding: 20px;
+            background: var(--light);
+            border-radius: 16px;
+            animation: slideDown 0.3s ease;
+        }
+
+        .contact-input-group.show {
+            display: block;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .phone-input {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .phone-input select {
+            width: 100px;
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 14px;
+            background: white;
+            cursor: pointer;
+        }
+
+        .phone-input input {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 14px;
+        }
+
+        .phone-input input.error {
+            border-color: var(--danger);
+            background-color: #FEF2F2;
+        }
+
+        .send-code-btn {
+            width: 100%;
+            padding: 12px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .send-code-btn:hover:not(:disabled) {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        .send-code-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .register-link {
+            text-align: center;
+            margin-top: 25px;
+            color: var(--text-light);
+            font-size: 15px;
+        }
+
+        .register-link a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+            transition: 0.3s;
+        }
+
+        .register-link a:hover {
+            color: var(--primary-dark);
+            text-decoration: underline;
+        }
+
+        /* Responsividade */
+        @media (max-width: 480px) {
+            .login-card {
+                padding: 30px 20px;
+            }
+
+            .login-header h2 {
+                font-size: 28px;
+            }
+
+            .login-options {
+                flex-direction: column;
+                gap: 15px;
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Spinner -->
+    <div class="loading-spinner" id="loadingSpinner">
+        <div class="spinner"></div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast" id="toast">
+        <i class="fas" id="toastIcon"></i>
+        <span id="toastMessage"></span>
+    </div>
+
+    <div class="login-container">
+        <div class="login-card">
+            <div class="login-header">
+                <div class="logo">NgolaShop</div>
+                <h2>Bem-vindo de volta! 👋</h2>
+                <p>Entre na sua conta para continuar</p>
+            </div>
+
+            <!-- Formulário de Login Padrão -->
+            <form id="loginForm" onsubmit="handleLogin(event)">
+                <div class="form-group">
+                    <label><i class="fas fa-user"></i> E-mail ou Contacto</label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-envelope"></i>
+                        <input 
+                            type="text" 
+                            id="username" 
+                            placeholder="exemplo@email.com ou 923 456 789" 
+                            required
+                            autocomplete="username"
+                        >
+                    </div>
+                    <div class="error-message" id="usernameError">Formato inválido</div>
+                </div>
+
+                <div class="form-group">
+                    <label><i class="fas fa-lock"></i> Senha</label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-lock"></i>
+                        <input 
+                            type="password" 
+                            id="password" 
+                            placeholder="••••••••" 
+                            required
+                            autocomplete="current-password"
+                        >
+                        <button type="button" class="toggle-password" onclick="togglePassword()">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                    <div class="error-message" id="passwordError">A senha deve ter pelo menos 6 caracteres</div>
+                </div>
+
+                <div class="login-options">
+                    <label class="remember-me">
+                        <input type="checkbox" id="remember"> Lembrar-me
+                    </label>
+                    <a href="#" class="forgot-password" onclick="handleForgotPassword(event)">Esqueceu a senha?</a>
+                </div>
+
+                <button type="submit" class="login-button" id="loginButton">
+                    Entrar na minha conta
+                </button>
+            </form>
+
+            <div class="divider">
+                <span>ou</span>
+            </div>
+
+            <!-- Login com Contacto (WhatsApp) -->
+            <button class="contact-login" onclick="toggleContactLogin()" id="contactLoginBtn">
+                <i class="fab fa-whatsapp"></i>
+                Entrar com número de contacto
+            </button>
+
+            <!-- Input para contacto -->
+            <div class="contact-input-group" id="contactInput">
+                <div class="phone-input">
+                    <select id="countryCode">
+                        <option value="+244">🇦🇴 +244 (Angola)</option>
+                        <option value="+351">🇵🇹 +351 (Portugal)</option>
+                        <option value="+55">🇧🇷 +55 (Brasil)</option>
+                    </select>
+                    <input 
+                        type="tel" 
+                        id="contactNumber" 
+                        placeholder="923 456 789"
+                        onkeypress="return onlyNumbers(event)"
+                    >
+                </div>
+                <div class="error-message" id="contactError" style="margin-bottom: 10px;">Número inválido</div>
+                <button class="send-code-btn" onclick="sendLoginCode()" id="sendCodeBtn">
+                    Enviar código de acesso
+                </button>
+                <p style="font-size: 12px; color: var(--text-light); margin-top: 10px; text-align: center;">
+                    <i class="fas fa-info-circle"></i> 
+                    Enviaremos um código por SMS/WhatsApp para o seu número
+                </p>
+            </div>
+
+            <div class="register-link">
+                Ainda não tem conta? 
+                <a href="#" onclick="handleCreateAccount(event)">Criar loja grátis →</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Variáveis de estado
+        let isContactLoginVisible = false;
+        let countdown = 60;
+
+        // Função para mostrar/esconder senha
+        function togglePassword() {
+            const passwordInput = document.getElementById('password');
+            const toggleBtn = document.querySelector('.toggle-password i');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                toggleBtn.classList.remove('fa-eye');
+                toggleBtn.classList.add('fa-eye-slash');
+            } else {
+                passwordInput.type = 'password';
+                toggleBtn.classList.remove('fa-eye-slash');
+                toggleBtn.classList.add('fa-eye');
+            }
+        }
+
+        // Função para permitir apenas números
+        function onlyNumbers(event) {
+            const charCode = event.which ? event.which : event.keyCode;
+            if (charCode > 31 && (charCode < 48 || charCode > 57)) {
+                return false;
+            }
+            return true;
+        }
+
+        // Função para formatar número de telefone
+        function formatPhoneNumber(value) {
+            let numbers = value.replace(/\D/g, '');
+            if (numbers.length > 9) numbers = numbers.slice(0, 9);
+            
+            if (numbers.length > 6) {
+                return numbers.replace(/(\d{3})(\d{3})(\d{0,3})/, '$1 $2 $3').trim();
+            } else if (numbers.length > 3) {
+                return numbers.replace(/(\d{3})(\d{0,3})/, '$1 $2').trim();
+            }
+            return numbers;
+        }
+
+        // Função para mostrar/esconder input de contacto
+        function toggleContactLogin() {
+            const contactInput = document.getElementById('contactInput');
+            const contactBtn = document.getElementById('contactLoginBtn');
+            
+            isContactLoginVisible = !isContactLoginVisible;
+            
+            if (isContactLoginVisible) {
+                contactInput.classList.add('show');
+                contactBtn.style.background = 'var(--primary-light)';
+                contactBtn.style.borderColor = 'var(--primary)';
+            } else {
+                contactInput.classList.remove('show');
+                contactBtn.style.background = 'var(--white)';
+                contactBtn.style.borderColor = 'var(--primary-light)';
+            }
+        }
+
+        // Função para mostrar toast
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            const toastIcon = document.getElementById('toastIcon');
+            const toastMessage = document.getElementById('toastMessage');
+            
+            toast.className = `toast ${type}`;
+            toastIcon.className = `fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}`;
+            toastMessage.textContent = message;
+            
+            toast.style.display = 'flex';
+            
+            setTimeout(() => {
+                toast.style.display = 'none';
+            }, 5000);
+        }
+
+        // Função para validar email
+        function isValidEmail(email) {
+            const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return re.test(email);
+        }
+
+        // Função para validar contacto angolano
+        function isValidAngolanContact(contact) {
+            const re = /^[9][0-9]{8}$/;
+            return re.test(contact.replace(/\s/g, ''));
+        }
+
+        // Função para validar username em tempo real
+        function validateUsername() {
+            const username = document.getElementById('username').value.trim();
+            const errorElement = document.getElementById('usernameError');
+            
+            if (username.length > 0) {
+                const isEmail = isValidEmail(username);
+                const isContact = isValidAngolanContact(username);
+                
+                if (!isEmail && !isContact) {
+                    document.getElementById('username').classList.add('error');
+                    errorElement.classList.add('show');
+                    return false;
+                } else {
+                    document.getElementById('username').classList.remove('error');
+                    errorElement.classList.remove('show');
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        // Função para validar senha em tempo real
+        function validatePassword() {
+            const password = document.getElementById('password').value;
+            const errorElement = document.getElementById('passwordError');
+            
+            if (password.length > 0 && password.length < 6) {
+                document.getElementById('password').classList.add('error');
+                errorElement.classList.add('show');
+                return false;
+            } else {
+                document.getElementById('password').classList.remove('error');
+                errorElement.classList.remove('show');
+                return true;
+            }
+        }
+
+        // Função principal de login
+        async function handleLogin(event) {
+            event.preventDefault();
+            
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value;
+            const remember = document.getElementById('remember').checked;
+            const loginButton = document.getElementById('loginButton');
+            
+            // Validações básicas
+            if (!username || !password) {
+                showToast('Por favor, preencha todos os campos', 'error');
+                return;
+            }
+
+            const isEmail = isValidEmail(username);
+            const isContact = isValidAngolanContact(username);
+
+            if (!isEmail && !isContact) {
+                showToast('Formato de email ou contacto inválido', 'error');
+                return;
+            }
+
+            if (password.length < 6) {
+                showToast('A senha deve ter pelo menos 6 caracteres', 'error');
+                return;
+            }
+
+            // Mostrar loading
+            document.getElementById('loadingSpinner').style.display = 'flex';
+            loginButton.disabled = true;
+            loginButton.textContent = 'Entrando...';
+
+            try {
+                // Simular requisição ao servidor
+                await new Promise(resolve => setTimeout(resolve, 2000));
+
+                // Simular login bem-sucedido
+                if (remember) {
+                    localStorage.setItem('rememberUsername', username);
+                } else {
+                    localStorage.removeItem('rememberUsername');
+                }
+
+                showToast('Login realizado com sucesso! Redirecionando...', 'success');
+
+                // Redirecionar para dashboard
+                setTimeout(() => {
+                    window.location.href = '/dashboard.html';
+                }, 1500);
+
+            } catch (error) {
+                showToast('Erro ao fazer login. Tente novamente.', 'error');
+                document.getElementById('loadingSpinner').style.display = 'none';
+                loginButton.disabled = false;
+                loginButton.textContent = 'Entrar na minha conta';
+            }
+        }
+
+        // Função para validar contacto em tempo real
+        function validateContactNumber() {
+            const contactInput = document.getElementById('contactNumber');
+            const contactError = document.getElementById('contactError');
+            const contactValue = contactInput.value.replace(/\s/g, '');
+            
+            if (contactValue.length > 0) {
+                if (!isValidAngolanContact(contactValue)) {
+                    contactInput.classList.add('error');
+                    contactError.classList.add('show');
+                    return false;
+                } else {
+                    contactInput.classList.remove('error');
+                    contactError.classList.remove('show');
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        // Função para enviar código de login via contacto
+        async function sendLoginCode() {
+            const countryCode = document.getElementById('countryCode').value;
+            const contactNumber = document.getElementById('contactNumber').value.replace(/\s/g, '');
+            const sendCodeBtn = document.getElementById('sendCodeBtn');
+            
+            if (!contactNumber) {
+                showToast('Por favor, insira o número de contacto', 'error');
+                return;
+            }
+
+            if (!isValidAngolanContact(contactNumber)) {
+                showToast('Número de contacto angolano inválido (deve começar com 9)', 'error');
+                return;
+            }
+
+            // Mostrar loading
+            document.getElementById('loadingSpinner').style.display = 'flex';
+            sendCodeBtn.disabled = true;
+            sendCodeBtn.textContent = 'Enviando...';
+
+            try {
+                // Simular envio de código
+                await new Promise(resolve => setTimeout(resolve, 2000));
+
+                const fullNumber = countryCode + ' ' + contactNumber.replace(/(\d{3})(\d{3})(\d{3})/, '$1 $2 $3');
+                
+                // Salvar número para uso posterior
+                localStorage.setItem('loginContact', fullNumber);
+
+                showToast(`Código enviado para ${fullNumber}!`, 'success');
+
+                // Iniciar contagem regressiva
+                startCountdown();
+
+            } catch (error) {
+                showToast('Erro ao enviar código. Tente novamente.', 'error');
+                sendCodeBtn.disabled = false;
+                sendCodeBtn.textContent = 'Enviar código de acesso';
+            } finally {
+                document.getElementById('loadingSpinner').style.display = 'none';
+            }
+        }
+
+        // Função para contagem regressiva
+        function startCountdown() {
+            const sendCodeBtn = document.getElementById('sendCodeBtn');
+            let timeLeft = 60;
+            
+            const interval = setInterval(() => {
+                timeLeft--;
+                sendCodeBtn.textContent = `Reenviar em ${timeLeft}s`;
+                
+                if (timeLeft <= 0) {
+                    clearInterval(interval);
+                    sendCodeBtn.disabled = false;
+                    sendCodeBtn.textContent = 'Enviar código de acesso';
+                }
+            }, 1000);
+        }
+
+        // Função para recuperar senha
+        function handleForgotPassword(event) {
+            event.preventDefault();
+            
+            const username = document.getElementById('username').value.trim();
+            
+            if (!username) {
+                showToast('Por favor, insira seu email ou contacto primeiro', 'error');
+                return;
+            }
+
+            if (!isValidEmail(username) && !isValidAngolanContact(username)) {
+                showToast('Formato de email ou contacto inválido', 'error');
+                return;
+            }
+
+            showToast('Instruções de recuperação enviadas para seu email/contacto!', 'success');
+        }
+
+        // Função para criar conta
+        function handleCreateAccount(event) {
+            event.preventDefault();
+            
+            document.getElementById('loadingSpinner').style.display = 'flex';
+            
+            setTimeout(() => {
+                window.location.href = 'criar-loja.html';
+            }, 1000);
+        }
+
+        // Inicialização
+        window.addEventListener('load', function() {
+            const remembered = localStorage.getItem('rememberUsername');
+            if (remembered) {
+                document.getElementById('username').value = remembered;
+                document.getElementById('remember').checked = true;
+            }
+
+            // Adicionar máscara ao input de contacto
+            const contactInput = document.getElementById('contactNumber');
+            contactInput.addEventListener('input', function(e) {
+                e.target.value = formatPhoneNumber(e.target.value);
+                validateContactNumber();
+            });
+
+            // Adicionar validações em tempo real
+            document.getElementById('username').addEventListener('input', validateUsername);
+            document.getElementById('password').addEventListener('input', validatePassword);
+            
+            // Adicionar blur events para validar quando o campo perde foco
+            document.getElementById('username').addEventListener('blur', validateUsername);
+            document.getElementById('password').addEventListener('blur', validatePassword);
+            document.getElementById('contactNumber').addEventListener('blur', validateContactNumber);
+        });
+
+        // Prevenir submit do formulário ao pressionar Enter no input de contacto
+        document.getElementById('contactNumber').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                sendLoginCode();
+            }
+        });
+    </script>
+</body>
+</html>

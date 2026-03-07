@@ -1,0 +1,3670 @@
+<!DOCTYPE html>
+<html lang="pt-AO">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <title>Froxe Express - Os melhores restaurantes em Luanda</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Montserrat:wght@800;900&display=swap" rel="stylesheet">
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <style>
+        :root {
+            --primary: #FF6B35;
+            --primary-dark: #E55A2B;
+            --secondary: #2EC4B6;
+            --dark: #1A1A2E;
+            --light: #F8F9FA;
+            --gray: #6C757D;
+            --success: #28A745;
+            --warning: #FFC107;
+            --danger: #DC3545;
+            --shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            --transition: all 0.3s ease;
+            --header-height: 70px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html {
+            font-size: 14px;
+            scroll-behavior: smooth;
+            -webkit-text-size-adjust: 100%;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            line-height: 1.6;
+            color: var(--dark);
+            background-color: var(--light);
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            position: relative;
+            min-height: 100vh;
+        }
+
+        /* Container responsivo */
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 15px;
+        }
+
+        /* Ícone de menu personalizado */
+        .menu-icon {
+            display: inline-block;
+            width: 24px;
+            height: 24px;
+            position: relative;
+            cursor: pointer;
+        }
+        
+        .menu-icon__line {
+            display: block;
+            width: 100%;
+            height: 2px;
+            background-color: var(--dark);
+            position: absolute;
+            left: 0;
+            border-radius: 2px;
+            transition: var(--transition);
+        }
+        
+        .menu-icon__line:nth-child(1) {
+            top: 4px;
+        }
+        
+        .menu-icon__line:nth-child(2) {
+            top: 11px;
+        }
+        
+        .menu-icon__line:nth-child(3) {
+            top: 18px;
+        }
+        
+        /* Animação para X quando ativo */
+        .mobile-menu-btn.active .menu-icon__line:nth-child(1) {
+            transform: rotate(45deg);
+            top: 11px;
+        }
+        
+        .mobile-menu-btn.active .menu-icon__line:nth-child(2) {
+            opacity: 0;
+        }
+        
+        .mobile-menu-btn.active .menu-icon__line:nth-child(3) {
+            transform: rotate(-45deg);
+            top: 11px;
+        }
+
+        /* Header Styles */
+        header {
+            background-color: white;
+            box-shadow: var(--shadow);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            animation: slideDown 0.5s ease;
+            padding: 0;
+            height: var(--header-height);
+        }
+
+        @keyframes slideDown {
+            from { transform: translateY(-100%); }
+            to { transform: translateY(0); }
+        }
+
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 100%;
+            padding: 0;
+            position: relative;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            flex: 0 1 auto;
+            min-width: 0;
+            max-width: 180px;
+            z-index: 10;
+        }
+
+        .logo-icon {
+            color: var(--primary);
+            font-size: 1.8rem;
+            flex-shrink: 0;
+        }
+
+        .logo-text {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 800;
+            font-size: 1.3rem;
+            color: var(--dark);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            line-height: 1;
+        }
+
+        .logo-text span {
+            color: var(--primary);
+        }
+
+        .logo-subtitle {
+            font-size: 0.7rem;
+            color: var(--gray);
+            margin-top: 2px;
+            display: none;
+            line-height: 1.2;
+        }
+
+        /* Mobile menu button */
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1.8rem;
+            color: var(--dark);
+            cursor: pointer;
+            padding: 12px;
+            width: 60px;
+            height: 60px;
+            align-items: center;
+            justify-content: center;
+            -webkit-tap-highlight-color: transparent;
+            flex: 0 0 60px;
+        }
+
+        /* Menu Desktop - AGORA DO LADO DO MUNICÍPIO */
+        .desktop-nav {
+            display: none;
+            position: relative;
+            flex: 0 1 auto;
+            min-width: 0;
+            margin: 0 10px;
+        }
+
+        .desktop-nav ul {
+            display: flex;
+            list-style: none;
+            gap: 12px;
+            margin: 0;
+            padding: 0;
+            align-items: center;
+            flex-wrap: nowrap;
+            justify-content: flex-start;
+        }
+
+        .desktop-nav a {
+            text-decoration: none;
+            color: var(--dark);
+            font-weight: 500;
+            transition: var(--transition);
+            position: relative;
+            font-size: 0.9rem;
+            padding: 8px 0;
+            white-space: nowrap;
+        }
+
+        .desktop-nav a:hover {
+            color: var(--primary);
+        }
+
+        .desktop-nav a::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background-color: var(--primary);
+            transition: var(--transition);
+        }
+
+        .desktop-nav a:hover::after {
+            width: 100%;
+        }
+
+        /* Menu Mobile Overlay */
+        .mobile-menu-overlay {
+            position: fixed;
+            top: var(--header-height);
+            left: 0;
+            width: 100%;
+            background-color: white;
+            box-shadow: var(--shadow);
+            transform: translateY(-100%);
+            opacity: 0;
+            visibility: hidden;
+            transition: var(--transition);
+            z-index: 999;
+            padding: 0;
+            border-radius: 0 0 20px 20px;
+            max-height: calc(100vh - var(--header-height));
+            overflow-y: auto;
+        }
+
+        .mobile-menu-overlay.active {
+            transform: translateY(0);
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .mobile-menu-overlay nav {
+            width: 100%;
+        }
+
+        .mobile-menu-overlay nav ul {
+            display: flex;
+            flex-direction: column;
+            list-style: none;
+            gap: 0;
+            margin: 0;
+            padding: 0;
+        }
+
+        .mobile-menu-overlay nav li {
+            width: 100%;
+            border-bottom: 1px solid #eee;
+        }
+
+        .mobile-menu-overlay nav li:last-child {
+            border-bottom: none;
+        }
+
+        .mobile-menu-overlay nav a {
+            display: block;
+            padding: 18px 20px;
+            text-decoration: none;
+            color: var(--dark);
+            font-weight: 500;
+            font-size: 1.1rem;
+            transition: var(--transition);
+        }
+
+        .mobile-menu-overlay nav a:hover {
+            background-color: #f8f9fa;
+            color: var(--primary);
+        }
+
+        /* HEADER ACTIONS - AGRUPAMENTO DO MENU E MUNICÍPIO */
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex: 0 0 auto;
+            min-width: fit-content;
+        }
+
+        /* GRUPO DO LADO ESQUERDO: Menu + Município */
+        .nav-municipio-group {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            background-color: var(--light);
+            padding: 4px 16px 4px 8px;
+            border-radius: 50px;
+            border: 1px solid #eee;
+            height: 48px;
+        }
+
+        .cart-btn {
+            position: relative;
+            background: none;
+            border: none;
+            font-size: 1.4rem;
+            color: var(--dark);
+            cursor: pointer;
+            transition: var(--transition);
+            padding: 12px;
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .cart-btn:hover {
+            color: var(--primary);
+        }
+
+        .cart-count {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background-color: var(--primary);
+            color: white;
+            font-size: 0.7rem;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            border: 2px solid white;
+        }
+
+        .municipio-selector {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: var(--transition);
+            min-width: 140px;
+            max-width: 180px;
+            height: 40px;
+            padding: 0 8px;
+        }
+
+        .municipio-selector i {
+            color: var(--primary);
+            font-size: 1rem;
+            flex-shrink: 0;
+        }
+
+        .municipio-selector select {
+            border: none;
+            background: transparent;
+            font-weight: 500;
+            color: var(--dark);
+            outline: none;
+            cursor: pointer;
+            width: 100%;
+            font-size: 0.85rem;
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* Barra de Pesquisa - REMOVIDA DO HEADER */
+        .search-container {
+            display: none;
+        }
+
+        .search-box {
+            position: relative;
+            width: 100%;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 10px 45px 10px 15px;
+            border: 2px solid #eee;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            background-color: white;
+            transition: var(--transition);
+            outline: none;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .search-input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1);
+        }
+
+        .search-button {
+            position: absolute;
+            right: 5px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: var(--primary);
+            border: none;
+            color: white;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .search-button:hover {
+            background: var(--primary-dark);
+        }
+
+        .search-results {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+            margin-top: 5px;
+            max-height: 400px;
+            overflow-y: auto;
+            z-index: 1000;
+            display: none;
+        }
+
+        .search-result-item {
+            padding: 12px 15px;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .search-result-item:hover {
+            background-color: #f8f9fa;
+        }
+
+        .search-result-item img {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            object-fit: cover;
+        }
+
+        .search-result-info h4 {
+            font-size: 0.9rem;
+            margin-bottom: 2px;
+        }
+
+        .search-result-info p {
+            font-size: 0.8rem;
+            color: var(--gray);
+        }
+
+        .search-empty {
+            padding: 20px;
+            text-align: center;
+            color: var(--gray);
+        }
+
+        /* Botão de pesquisa mobile - REMOVIDO */
+        .search-mobile-btn {
+            display: none;
+        }
+
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(135deg, rgba(255, 107, 53, 0.1) 0%, rgba(46, 196, 182, 0.1) 100%);
+            padding: calc(var(--header-height) + 20px) 0 40px;
+            position: relative;
+            overflow: hidden;
+            min-height: calc(100vh - var(--header-height));
+            display: flex;
+            align-items: center;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            opacity: 0.05;
+            top: -100px;
+            right: -100px;
+        }
+
+        .hero-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: relative;
+            z-index: 1;
+            flex-direction: column;
+            gap: 40px;
+            width: 100%;
+        }
+
+        .hero-content {
+            flex: 1;
+            width: 100%;
+            text-align: center;
+            order: 2;
+        }
+
+        .hero-title {
+            font-size: 2.2rem;
+            font-weight: 800;
+            line-height: 1.2;
+            margin-bottom: 20px;
+            color: var(--dark);
+        }
+
+        .hero-title span {
+            color: var(--primary);
+            display: inline-block;
+        }
+
+        .hero-subtitle {
+            font-size: 1.05rem;
+            color: var(--gray);
+            margin-bottom: 30px;
+            line-height: 1.6;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .btn {
+            padding: 14px 24px;
+            border-radius: 50px;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: var(--transition);
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            min-height: 50px;
+            min-width: 140px;
+            -webkit-tap-highlight-color: transparent;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 5px;
+            height: 5px;
+            background: rgba(255, 255, 255, 0.5);
+            opacity: 0;
+            border-radius: 100%;
+            transform: scale(1, 1) translate(-50%);
+            transform-origin: 50% 50%;
+        }
+
+        .btn:focus:not(:active)::after {
+            animation: ripple 1s ease-out;
+        }
+
+        @keyframes ripple {
+            0% {
+                transform: scale(0, 0);
+                opacity: 0.5;
+            }
+            100% {
+                transform: scale(20, 20);
+                opacity: 0;
+            }
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 107, 53, 0.2);
+        }
+
+        .btn-secondary {
+            background-color: transparent;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+        }
+
+        .btn-secondary:hover {
+            background-color: rgba(255, 107, 53, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .hero-image {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            width: 100%;
+            order: 1;
+        }
+
+        .hero-image img {
+            max-width: 100%;
+            max-height: 300px;
+            border-radius: 15px;
+            box-shadow: var(--shadow);
+            animation: float 3s ease-in-out infinite;
+            object-fit: cover;
+            width: 100%;
+            height: auto;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        /* Main content spacing */
+        main {
+            padding-top: var(--header-height);
+        }
+
+        /* Search Section */
+        .search-section {
+            padding: 20px 0;
+            background-color: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            margin-bottom: 20px;
+        }
+
+        .search-section .container {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .search-section .search-container {
+            display: block;
+            flex: 1;
+            margin: 0;
+            max-width: none;
+        }
+
+        /* Restaurants Section */
+        .section-title {
+            font-size: 2rem;
+            text-align: center;
+            margin-bottom: 40px;
+            color: var(--dark);
+            position: relative;
+            padding-top: 20px;
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 4px;
+            background-color: var(--primary);
+            border-radius: 2px;
+        }
+
+        .restaurants {
+            padding: 60px 0;
+        }
+
+        .restaurants-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 25px;
+        }
+
+        .restaurant-card {
+            background-color: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            animation: fadeInUp 0.6s ease;
+            position: relative;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .restaurant-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        .restaurant-image {
+            height: 180px;
+            width: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .restaurant-info {
+            padding: 20px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .restaurant-name {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: var(--dark);
+            line-height: 1.3;
+        }
+
+        .restaurant-category {
+            display: inline-block;
+            background-color: rgba(46, 196, 182, 0.1);
+            color: var(--secondary);
+            padding: 4px 10px;
+            border-radius: 50px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            margin-bottom: 12px;
+            align-self: flex-start;
+        }
+
+        .restaurant-meta {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            font-size: 0.85rem;
+            color: var(--gray);
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .restaurant-meta i {
+            margin-right: 5px;
+            color: var(--primary);
+            font-size: 0.9rem;
+        }
+
+        .restaurant-description {
+            color: var(--gray);
+            font-size: 0.9rem;
+            margin-bottom: 20px;
+            line-height: 1.5;
+            flex: 1;
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            line-clamp: 2;
+            -webkit-box-orient: vertical;
+        }
+
+        .restaurant-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: auto;
+        }
+
+        .btn-view-menu {
+            background-color: var(--primary);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.9rem;
+            transition: var(--transition);
+            min-height: 40px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 120px;
+        }
+
+        .btn-view-menu:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        .restaurant-status {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.85rem;
+        }
+
+        .status-open {
+            color: var(--success);
+        }
+
+        .status-closed {
+            color: var(--danger);
+        }
+
+        /* Sistema de Avaliação com Estrelas */
+        .rating-container {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            margin-top: 8px;
+        }
+
+        .stars {
+            display: flex;
+            gap: 2px;
+        }
+
+        .star {
+            color: #ddd;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .star:hover {
+            color: #ffc107;
+        }
+
+        .star.active {
+            color: #ffc107;
+        }
+
+        .rating-text {
+            font-size: 0.8rem;
+            color: var(--gray);
+            margin-left: 5px;
+        }
+
+        .user-rating {
+            margin-top: 5px;
+            font-size: 0.8rem;
+            color: var(--primary);
+            display: none;
+        }
+
+        .user-rating.show {
+            display: block;
+        }
+
+        /* Status indicator badge */
+        .status-badge {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            z-index: 2;
+            backdrop-filter: blur(10px);
+            background-color: rgba(255, 255, 255, 0.9);
+        }
+
+        .status-badge.open {
+            color: var(--success);
+        }
+
+        .status-badge.closed {
+            color: var(--danger);
+        }
+
+        /* How It Works Section */
+        .how-it-works {
+            padding: 60px 0;
+            background-color: #f9f9f9;
+        }
+
+        .steps {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
+            margin-top: 40px;
+        }
+
+        .step {
+            text-align: center;
+            padding: 25px 20px;
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .step:hover {
+            transform: translateY(-8px);
+        }
+
+        .step-number {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 60px;
+            height: 60px;
+            background-color: var(--primary);
+            color: white;
+            font-size: 1.5rem;
+            font-weight: 700;
+            border-radius: 50%;
+            margin-bottom: 20px;
+        }
+
+        .step-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: var(--dark);
+        }
+
+        .step-description {
+            color: var(--gray);
+            font-size: 0.9rem;
+            line-height: 1.5;
+            flex: 1;
+        }
+
+        /* Register Restaurant Banner */
+        .register-banner {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            padding: 50px 0;
+            text-align: center;
+            color: white;
+            margin: 60px 0;
+            border-radius: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .register-banner::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80') center/cover;
+            opacity: 0.1;
+        }
+
+        .register-banner-content {
+            position: relative;
+            z-index: 1;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .register-banner h2 {
+            font-size: 2.2rem;
+            margin-bottom: 20px;
+            font-weight: 700;
+            line-height: 1.3;
+        }
+
+        .register-banner p {
+            font-size: 1.1rem;
+            margin-bottom: 30px;
+            opacity: 0.9;
+            line-height: 1.6;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .register-banner .btn {
+            background-color: white;
+            color: var(--primary);
+            padding: 16px 35px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            min-height: 55px;
+            min-width: 250px;
+        }
+
+        .register-banner .btn:hover {
+            background-color: rgba(255, 255, 255, 0.9);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Footer */
+        footer {
+            background-color: var(--dark);
+            color: white;
+            padding: 60px 0 30px;
+            margin-top: 60px;
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+
+        .footer-column h3 {
+            font-size: 1.3rem;
+            margin-bottom: 20px;
+            color: white;
+            position: relative;
+        }
+
+        .footer-column h3::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 0;
+            width: 40px;
+            height: 3px;
+            background-color: var(--primary);
+        }
+
+        .footer-column p {
+            color: #aaa;
+            margin-bottom: 20px;
+            line-height: 1.6;
+            font-size: 0.95rem;
+        }
+
+        .footer-links {
+            list-style: none;
+        }
+
+        .footer-links li {
+            margin-bottom: 12px;
+        }
+
+        .footer-links a {
+            color: #aaa;
+            text-decoration: none;
+            transition: var(--transition);
+            font-size: 0.95rem;
+            display: inline-block;
+            padding: 3px 0;
+        }
+
+        .footer-links a:hover {
+            color: var(--primary);
+            transform: translateX(5px);
+        }
+
+        .footer-contact {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .contact-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #aaa;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        .contact-item i {
+            color: var(--primary);
+            font-size: 1rem;
+            min-width: 20px;
+        }
+
+        .copyright {
+            text-align: center;
+            padding-top: 30px;
+            border-top: 1px solid #333;
+            color: #777;
+            font-size: 0.9rem;
+        }
+
+        /* Links legais no footer */
+        .legal-links {
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .legal-links a {
+            color: #aaa;
+            text-decoration: none;
+            font-size: 0.85rem;
+            transition: var(--transition);
+        }
+
+        .legal-links a:hover {
+            color: var(--primary);
+        }
+
+        /* Cart Modal */
+        .cart-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            justify-content: flex-end;
+            align-items: flex-end;
+        }
+
+        .cart-content {
+            width: 100%;
+            max-width: 500px;
+            height: 85vh;
+            background-color: white;
+            padding: 20px;
+            overflow-y: auto;
+            transform: translateY(100%);
+            transition: transform 0.3s ease;
+            border-radius: 20px 20px 0 0;
+            display: flex;
+            flex-direction: column;
+            max-height: 100vh;
+        }
+
+        .cart-modal.active {
+            display: flex;
+        }
+
+        .cart-modal.active .cart-content {
+            transform: translateY(0);
+        }
+
+        .cart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+            flex-shrink: 0;
+        }
+
+        .cart-header h2 {
+            font-size: 1.6rem;
+            color: var(--dark);
+        }
+
+        .close-cart {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--gray);
+            cursor: pointer;
+            transition: var(--transition);
+            padding: 10px;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .close-cart:hover {
+            color: var(--danger);
+        }
+
+        .cart-items {
+            margin-bottom: 20px;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid #eee;
+            gap: 15px;
+        }
+
+        .cart-item-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .cart-item-info h4 {
+            font-size: 1.1rem;
+            margin-bottom: 5px;
+            line-height: 1.3;
+            word-break: break-word;
+        }
+
+        .cart-item-info p {
+            color: var(--gray);
+            font-size: 0.9rem;
+            margin-bottom: 8px;
+            line-height: 1.4;
+        }
+
+        .cart-item-price {
+            font-weight: 600;
+            color: var(--primary);
+            font-size: 1rem;
+        }
+
+        .cart-item-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-shrink: 0;
+        }
+
+        .cart-item-actions button {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            border: 1px solid #ddd;
+            background-color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: var(--transition);
+            font-size: 1rem;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .cart-item-actions button:hover {
+            background-color: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .cart-item-quantity {
+            font-weight: 600;
+            min-width: 25px;
+            text-align: center;
+            font-size: 1rem;
+        }
+
+        .cart-summary {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 2px solid #eee;
+            flex-shrink: 0;
+            background: white;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-size: 1rem;
+        }
+
+        .summary-total {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--dark);
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 2px solid #ddd;
+        }
+
+        .cart-empty {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--gray);
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .cart-empty i {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            color: #ddd;
+        }
+
+        .cart-empty h3 {
+            font-size: 1.4rem;
+            margin-bottom: 10px;
+        }
+
+        .cart-empty p {
+            font-size: 1rem;
+            max-width: 300px;
+            margin: 0 auto;
+        }
+
+        .btn-checkout {
+            width: 100%;
+            margin-top: 20px;
+            padding: 16px;
+            font-size: 1.1rem;
+            min-height: 55px;
+        }
+
+        /* Municipality Modal */
+        .municipality-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 3000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .municipality-content {
+            background-color: white;
+            padding: 30px;
+            border-radius: 20px;
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+            animation: popUp 0.3s ease;
+            position: relative;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        @keyframes popUp {
+            from { transform: scale(0.8); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .municipality-content h2 {
+            margin-bottom: 15px;
+            color: var(--dark);
+            font-size: 1.8rem;
+            line-height: 1.3;
+        }
+
+        .municipality-content p {
+            color: var(--gray);
+            margin-bottom: 25px;
+            font-size: 1.1rem;
+            line-height: 1.5;
+        }
+
+        .municipality-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+            max-height: 50vh;
+            overflow-y: auto;
+            padding: 5px;
+        }
+
+        .municipality-option {
+            padding: 20px;
+            border: 2px solid #eee;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: var(--transition);
+            background-color: white;
+            text-align: left;
+            height: 100%;
+        }
+
+        .municipality-option:hover {
+            border-color: var(--primary);
+            background-color: rgba(255, 107, 53, 0.05);
+            transform: translateY(-3px);
+        }
+
+        .municipality-option.selected {
+            border-color: var(--primary);
+            background-color: rgba(255, 107, 53, 0.1);
+        }
+
+        .municipality-option h4 {
+            margin-bottom: 8px;
+            color: var(--dark);
+            font-size: 1.1rem;
+        }
+
+        .municipality-option p {
+            margin-bottom: 0;
+            font-size: 0.85rem;
+            line-height: 1.4;
+            color: var(--gray);
+        }
+
+        .municipality-footer {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+            flex-wrap: wrap;
+        }
+
+        /* Filter Badge */
+        .filter-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background-color: var(--primary);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 25px;
+            font-size: 0.9rem;
+            margin-bottom: 20px;
+            cursor: pointer;
+            transition: var(--transition);
+            border: none;
+            max-width: 100%;
+            flex-wrap: wrap;
+        }
+
+        .filter-badge:hover {
+            background-color: var(--primary-dark);
+        }
+
+        .filter-badge i {
+            font-size: 0.9rem;
+        }
+
+        /* Notification */
+        .notification {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            left: 20px;
+            background-color: var(--primary);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+            z-index: 1001;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            animation: slideInRight 0.3s ease;
+            cursor: pointer;
+            max-width: 400px;
+            margin: 0 auto;
+            backdrop-filter: blur(10px);
+            background-color: rgba(255, 107, 53, 0.95);
+        }
+
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .notification.fade-out {
+            animation: fadeOut 0.3s ease forwards;
+        }
+
+        @keyframes fadeOut {
+            from { opacity: 1; }
+            to { opacity: 0; }
+        }
+
+        /* Touch optimizations */
+        button, 
+        a, 
+        select, 
+        .municipio-selector,
+        .restaurant-card,
+        .step,
+        .municipality-option {
+            cursor: pointer;
+            -webkit-user-select: none;
+            user-select: none;
+            touch-action: manipulation;
+        }
+
+        /* Ajustes específicos para mobile */
+        @media (max-width: 768px) {
+            /* Header mobile */
+            .header-container {
+                padding: 0 10px;
+            }
+            
+            .mobile-menu-btn {
+                display: flex;
+                order: 2;
+                width: 50px;
+                height: 50px;
+                padding: 10px;
+            }
+            
+            .logo {
+                order: 1;
+                max-width: 160px;
+            }
+            
+            .logo-icon {
+                font-size: 1.5rem;
+            }
+            
+            .logo-text {
+                font-size: 1.1rem;
+            }
+            
+            .header-actions {
+                order: 3;
+                width: auto;
+                margin-top: 0;
+                padding-top: 0;
+                border-top: none;
+                gap: 5px;
+            }
+            
+            .nav-municipio-group {
+                display: none; /* Esconder o grupo em mobile, usar menu overlay */
+            }
+            
+            .cart-btn {
+                width: 45px;
+                height: 45px;
+                padding: 8px;
+                font-size: 1.2rem;
+            }
+            
+            .municipio-selector {
+                display: none;
+            }
+            
+            .search-mobile-btn {
+                display: none;
+            }
+            
+            .search-section {
+                display: block;
+            }
+            
+            /* Hero mobile */
+            .hero {
+                padding: calc(var(--header-height) + 15px) 0 30px;
+            }
+            
+            .hero-title {
+                font-size: 1.8rem;
+                margin-bottom: 15px;
+            }
+            
+            .hero-subtitle {
+                font-size: 1rem;
+                margin-bottom: 25px;
+                padding: 0 10px;
+            }
+            
+            .hero-buttons {
+                flex-direction: column;
+                gap: 10px;
+                padding: 0 10px;
+            }
+            
+            .hero-buttons .btn {
+                width: 100%;
+                max-width: 280px;
+            }
+            
+            /* Grid de restaurantes mobile */
+            .restaurants-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+                padding: 0 5px;
+            }
+            
+            .restaurant-card {
+                margin: 0 auto;
+                max-width: 400px;
+            }
+            
+            /* Seções mobile */
+            .section-title {
+                font-size: 1.6rem;
+                margin-bottom: 30px;
+                padding: 0 10px;
+            }
+            
+            .steps {
+                grid-template-columns: 1fr;
+                gap: 20px;
+                padding: 0 10px;
+            }
+            
+            .step {
+                padding: 20px 15px;
+                max-width: 400px;
+                margin: 0 auto;
+            }
+            
+            /* Banner mobile */
+            .register-banner {
+                margin: 40px 15px;
+                padding: 40px 15px;
+                border-radius: 15px;
+            }
+            
+            .register-banner h2 {
+                font-size: 1.6rem;
+            }
+            
+            .register-banner p {
+                font-size: 1rem;
+                padding: 0 5px;
+            }
+            
+            .register-banner .btn {
+                min-width: 220px;
+                padding: 14px 25px;
+            }
+            
+            /* Footer mobile */
+            .footer-content {
+                grid-template-columns: 1fr;
+                gap: 30px;
+                padding: 0 15px;
+            }
+            
+            .footer-column h3 {
+                font-size: 1.2rem;
+            }
+            
+            /* Links legais mobile */
+            .legal-links {
+                flex-direction: column;
+                gap: 10px;
+                align-items: center;
+            }
+            
+            /* Modal mobile */
+            .municipality-options {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+            
+            .municipality-footer {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .municipality-footer .btn {
+                width: 100%;
+            }
+            
+            .cart-content {
+                height: 90vh;
+                padding: 15px;
+                border-radius: 20px 20px 0 0;
+            }
+            
+            /* Notification mobile */
+            .notification {
+                left: 10px;
+                right: 10px;
+                bottom: 10px;
+                max-width: none;
+                padding: 12px 15px;
+            }
+            
+            /* Menu icon mobile */
+            .menu-icon {
+                width: 20px;
+                height: 20px;
+            }
+            
+            .menu-icon__line:nth-child(1) {
+                top: 3px;
+            }
+            
+            .menu-icon__line:nth-child(2) {
+                top: 9px;
+            }
+            
+            .menu-icon__line:nth-child(3) {
+                top: 15px;
+            }
+            
+            /* Efeito de toque para mobile */
+            .mobile-menu-btn:active .menu-icon__line {
+                background-color: var(--primary);
+            }
+            
+            /* Ajustar padding geral */
+            .container {
+                padding: 0 10px;
+            }
+        }
+
+        /* Desktop styles */
+        @media (min-width: 769px) {
+            html {
+                font-size: 16px;
+            }
+            
+            .logo-subtitle {
+                display: block;
+            }
+            
+            .mobile-menu-btn {
+                display: none;
+            }
+            
+            .search-mobile-btn {
+                display: none;
+            }
+            
+            /* Desktop nav agora dentro do nav-municipio-group */
+            .desktop-nav {
+                display: flex !important;
+                transform: translateY(0) !important;
+                opacity: 1 !important;
+                visibility: visible !important;
+                position: relative !important;
+                top: auto !important;
+                background: transparent !important;
+                box-shadow: none !important;
+            }
+            
+            .desktop-nav ul {
+                flex-direction: row;
+                gap: 12px;
+            }
+            
+            .desktop-nav li {
+                width: auto;
+                border-bottom: none;
+            }
+            
+            .desktop-nav a {
+                padding: 8px 0;
+                font-size: 0.9rem;
+            }
+            
+            /* Grupo de navegação e município */
+            .nav-municipio-group {
+                display: flex;
+                align-items: center;
+                gap: 20px;
+                background-color: var(--light);
+                padding: 4px 16px 4px 8px;
+                border-radius: 50px;
+                border: 1px solid #eee;
+                height: 48px;
+            }
+            
+            .municipio-selector {
+                display: flex;
+                border-left: 1px solid #ddd;
+                padding-left: 16px;
+                margin-left: 4px;
+                min-width: 140px;
+            }
+            
+            .hero {
+                padding: calc(var(--header-height) + 40px) 0 60px;
+            }
+            
+            .hero-container {
+                flex-direction: row;
+                text-align: left;
+                gap: 60px;
+            }
+            
+            .hero-content {
+                text-align: left;
+                order: 1;
+            }
+            
+            .hero-buttons {
+                justify-content: flex-start;
+            }
+            
+            .hero-title {
+                font-size: 2.8rem;
+            }
+            
+            .hero-image {
+                order: 2;
+            }
+            
+            .hero-image img {
+                max-height: 400px;
+            }
+            
+            .section-title {
+                font-size: 2.5rem;
+            }
+            
+            .restaurants {
+                padding: 80px 0;
+            }
+            
+            .restaurants-grid {
+                grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+                gap: 30px;
+            }
+            
+            .how-it-works {
+                padding: 80px 0;
+            }
+            
+            .register-banner {
+                padding: 60px 0;
+                margin: 80px 0;
+            }
+            
+            .register-banner h2 {
+                font-size: 2.5rem;
+            }
+            
+            footer {
+                padding: 70px 0 35px;
+            }
+            
+            .cart-content {
+                max-width: 450px;
+                height: 100%;
+                border-radius: 0;
+                transform: translateX(100%);
+            }
+            
+            .cart-modal.active .cart-content {
+                transform: translateX(0);
+            }
+            
+            .notification {
+                left: auto;
+                right: 30px;
+                max-width: 350px;
+            }
+            
+            .mobile-menu-overlay {
+                display: none !important;
+            }
+            
+            /* Search section desktop */
+            .search-section .search-container {
+                max-width: 600px;
+                margin: 0 auto;
+            }
+        }
+
+        /* Large desktop */
+        @media (min-width: 1200px) {
+            .container {
+                padding: 0 20px;
+            }
+            
+            .hero-title {
+                font-size: 3.2rem;
+            }
+            
+            .hero-container {
+                gap: 80px;
+            }
+            
+            .steps {
+                gap: 40px;
+            }
+            
+            .step {
+                padding: 30px 25px;
+            }
+            
+            .footer-content {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 50px;
+            }
+            
+            .desktop-nav ul {
+                gap: 20px;
+            }
+            
+            .desktop-nav a {
+                font-size: 1rem;
+            }
+        }
+
+        /* Extra small devices */
+        @media (max-width: 480px) {
+            .hero-title {
+                font-size: 1.6rem;
+            }
+            
+            .hero-subtitle {
+                font-size: 0.95rem;
+            }
+            
+            .section-title {
+                font-size: 1.4rem;
+            }
+            
+            .restaurant-card {
+                margin: 0 5px;
+            }
+            
+            .btn {
+                padding: 12px 20px;
+                font-size: 0.95rem;
+                min-height: 48px;
+                min-width: 120px;
+            }
+            
+            .register-banner h2 {
+                font-size: 1.4rem;
+            }
+            
+            .register-banner p {
+                font-size: 0.95rem;
+            }
+            
+            .cart-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+            
+            .cart-item-actions {
+                align-self: flex-end;
+            }
+            
+            /* Header extra small */
+            .logo {
+                max-width: 140px;
+            }
+            
+            .logo-text {
+                font-size: 1rem;
+            }
+            
+            .logo-icon {
+                font-size: 1.4rem;
+            }
+            
+            .mobile-menu-btn {
+                width: 45px;
+                height: 45px;
+            }
+            
+            .cart-btn {
+                width: 40px;
+                height: 40px;
+            }
+            
+            .search-mobile-btn {
+                display: none;
+            }
+        }
+
+        /* Prevenir zoom em inputs em iOS */
+        @media (max-width: 768px) {
+            input, select, textarea {
+                font-size: 16px !important;
+            }
+        }
+
+        /* Loading spinner */
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--primary-dark);
+        }
+
+        /* Back to top button */
+        .back-to-top {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 50px;
+            height: 50px;
+            background-color: var(--primary);
+            color: white;
+            border-radius: 50%;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: var(--transition);
+            z-index: 999;
+            box-shadow: var(--shadow);
+            border: none;
+        }
+
+        .back-to-top:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-3px);
+        }
+
+        @media (max-width: 768px) {
+            .back-to-top {
+                bottom: 20px;
+                right: 20px;
+                width: 45px;
+                height: 45px;
+                font-size: 1.1rem;
+            }
+        }
+
+        /* Performance optimizations */
+        .performance-optimized {
+            will-change: transform, opacity;
+        }
+
+        /* Print styles */
+        @media print {
+            .cart-modal,
+            .municipality-modal,
+            .notification,
+            .back-to-top,
+            .cart-btn,
+            .mobile-menu-btn,
+            .search-container {
+                display: none !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Back to top button -->
+    <button class="back-to-top" id="backToTop">
+        <i class="fas fa-chevron-up"></i>
+    </button>
+
+    <!-- Header -->
+    <header>
+        <div class="container header-container">
+            <a href="#" class="logo">
+                <div class="logo-icon">
+                    <i class="fas fa-utensils"></i>
+                </div>
+                <div>
+                    <div class="logo-text">FROXE<span>EXPRESS</span></div>
+                    <div class="logo-subtitle">Inovação no consumo alimentar</div>
+                </div>
+            </a>
+
+            <button class="mobile-menu-btn" id="mobileMenuBtn">
+                <div class="menu-icon">
+                    <span class="menu-icon__line"></span>
+                    <span class="menu-icon__line"></span>
+                    <span class="menu-icon__line"></span>
+                </div>
+            </button>
+
+            <!-- Menu Mobile (overlay) -->
+            <div class="mobile-menu-overlay" id="mobileNav">
+                <nav>
+                    <ul>
+                        <li><a href="#home">Início</a></li>
+                        <li><a href="#restaurants">Restaurantes</a></li>
+                        <li><a href="#how-it-works">Como Funciona</a></li>
+                        <li><a href="#contact">Contacto</a></li>
+                        <li><a href="#register-restaurant">Para Restaurantes</a></li>
+                    </ul>
+                </nav>
+            </div>
+
+            <!-- BARRA DE PESQUISA REMOVIDA DO HEADER -->
+
+            <div class="header-actions">
+                <!-- GRUPO: Menu Desktop + Município (lado a lado) -->
+                <div class="nav-municipio-group">
+                    <!-- Menu Desktop (agora dentro do grupo) -->
+                    <nav class="desktop-nav" id="desktopNav">
+                        <ul>
+                            <li><a href="#home">Início</a></li>
+                            <li><a href="#restaurants">Restaurantes</a></li>
+                            <li><a href="#how-it-works">Como Funciona</a></li>
+                            <li><a href="#contact">Contacto</a></li>
+                            <li><a href="#register-restaurant">Para Restaurantes</a></li>
+                        </ul>
+                    </nav>
+                    
+                    <!-- Seletor de Município -->
+                    <div class="municipio-selector" id="municipioSelector">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <select id="municipioSelect">
+                            <option value="">Todos os municípios</option>
+                            <option value="belas">Belas</option>
+                            <option value="cacuaco">Cacuaco</option>
+                            <option value="cazenga">Cazenga</option>
+                            <option value="viana">Viana</option>
+                            <option value="talatona">Talatona</option>
+                            <option value="kilamba">Kilamba</option>
+                            <option value="sambizanga">Sambizanga</option>
+                            <option value="maianga">Maianga</option>
+                            <option value="ruila">RuiLA</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <!-- Carrinho (separado) -->
+                <button class="cart-btn" id="cartBtn">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span class="cart-count" id="cartCount">0</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <!-- Barra de pesquisa na seção de restaurantes -->
+        <section class="search-section" id="searchSection">
+            <div class="container">
+                <div class="search-container" id="mainSearchContainer">
+                    <div class="search-box">
+                        <input type="text" class="search-input" id="mainSearchInput" placeholder="Pesquisar restaurantes por nome, categoria, descrição...">
+                        <button class="search-button" id="mainSearchButton">
+                            <i class="fas fa-search"></i>
+                        </button>
+                        <div class="search-results" id="mainSearchResults"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Hero Section -->
+        <section class="hero" id="home">
+            <div class="container hero-container">
+                <div class="hero-content">
+                    <h1 class="hero-title">Comida de qualidade <span> para todos os </span> momentos </h1>
+                    <p class="hero-subtitle">Escolha entre os melhores restaurantes de Luanda e desfrute de comida quente e fresca, do jeito que você gosta. Sem necessidade de criar conta!</p>
+                    <div class="hero-buttons">
+                        <a href="#restaurants" class="btn btn-primary">
+                            <i class="fas fa-utensils"></i> Ver Restaurantes
+                        </a>
+                        <a href="#how-it-works" class="btn btn-secondary">
+                            <i class="fas fa-play-circle"></i> Como Funciona
+                        </a>
+                    </div>
+                </div>
+                <div class="hero-image">
+                    <img src="https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80" alt="Comida entregue em casa">
+                </div>
+            </div>
+        </section>
+
+        <!-- Restaurants Section -->
+        <section class="restaurants" id="restaurants">
+            <div class="container">
+                <h2 class="section-title">Restaurantes Parceiros</h2>
+                
+                <div id="filterInfo" style="text-align: center; margin-bottom: 25px;"></div>
+                
+                <div class="restaurants-grid" id="restaurantsGrid">
+                    <!-- Restaurants will be loaded here dynamically -->
+                    <div style="grid-column: 1 / -1; text-align: center; padding: 40px;">
+                        <div class="loading-spinner" style="margin: 0 auto 20px;"></div>
+                        <p>Carregando restaurantes...</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Register Restaurant Banner -->
+        <section class="register-banner" id="register-restaurant">
+            <div class="container register-banner-content">
+                <h2>Seu restaurante na Froxe Express</h2>
+                <p>Aumente suas vendas e alcance mais clientes em Luanda. Junte-se à nossa plataforma e comece a receber pedidos hoje mesmo!</p>
+                <button class="btn" id="whatsappRegisterBtn">
+                    <i class="fab fa-whatsapp"></i> Registrar Teu Restaurante
+                </button>
+            </div>
+        </section>
+
+        <!-- How It Works Section -->
+        <section class="how-it-works" id="how-it-works">
+            <div class="container">
+                <h2 class="section-title">Como Funciona</h2>
+                <div class="steps">
+                    <div class="step">
+                        <div class="step-number">1</div>
+                        <h3 class="step-title">Escolha o Município</h3>
+                        <p class="step-description">Filtre por município ou veja todos os restaurantes disponíveis.</p>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">2</div>
+                        <h3 class="step-title">Escolha o Restaurante</h3>
+                        <p class="step-description">Selecione entre nossos restaurantes parceiros.</p>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">3</div>
+                        <h3 class="step-title">Faça seu Pedido</h3>
+                        <p class="step-description">Adicione os itens ao carrinho e revise seu pedido.</p>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">4</div>
+                        <h3 class="step-title">Você no Lugar Certo</h3>
+                        <p class="step-description">Finalize, pague e saboreie as melhores opções dos nossos restaurantes parceiros.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer id="contact">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-column">
+                    <h3>FROXE EXPRESS</h3>
+                    <p>OS serviços de comida mais rápido e confiável de Luanda. Conectamos você aos melhores restaurantes da cidade.</p>
+                    <div class="footer-contact">
+                        <div class="contact-item">
+                            <i class="fas fa-phone"></i>
+                            <span>+244 972 481 656</span>
+                        </div>
+                        <div class="contact-item">
+                            <i class="fas fa-envelope"></i>
+                            <span>froxeexpress@gmail.com</span>
+                        </div>
+                        <div class="contact-item">
+                            <i class="fab fa-whatsapp"></i>
+                            <span>+244 972 481 656 (WhatsApp)</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="footer-column">
+                    <h3>Municípios Atendidos</h3>
+                    <ul class="footer-links">
+                        <li><a href="#" data-municipio="">Todos os municípios</a></li>
+                        <li><a href="#" data-municipio="belas">Belas</a></li>
+                        <li><a href="#" data-municipio="cacuaco">Cacuaco</a></li>
+                        <li><a href="#" data-municipio="cazenga">Cazenga</a></li>
+                        <li><a href="#" data-municipio="viana">Viana</a></li>
+                        <li><a href="#" data-municipio="talatona">Talatona</a></li>
+                        <li><a href="#" data-municipio="kilamba">Kilamba</a></li>
+                        <li><a href="#" data-municipio="sambizanga">Sambizanga</a></li>
+                        <li><a href="#" data-municipio="maianga">Maianga</a></li>
+                        <li><a href="#" data-municipio="ruila">RuiLA</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>Links Rápidos</h3>
+                    <ul class="footer-links">
+                        <li><a href="#home">Início</a></li>
+                        <li><a href="#restaurants">Restaurantes</a></li>
+                        <li><a href="#how-it-works">Como Funciona</a></li>
+                        <li><a href="#register-restaurant">Registrar Restaurante</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- Links Legais no Footer -->
+            <div class="legal-links">
+                <a href="politica-privacidade.html" target="_blank">Política de Privacidade</a>
+                <a href="termos-servico.html" target="_blank">Termos de Serviço</a>
+                <a href="#faq">FAQ</a>
+                <a href="#security">Segurança</a>
+            </div>
+            
+            <div class="copyright">
+                &copy; 2023 Froxe Express. Todos os direitos reservados.
+            </div>
+        </div>
+    </footer>
+
+    <!-- Cart Modal -->
+    <div class="cart-modal" id="cartModal">
+        <div class="cart-content">
+            <div class="cart-header">
+                <h2>Seu Carrinho</h2>
+                <button class="close-cart" id="closeCart">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="cart-items" id="cartItems">
+                <!-- Cart items will be loaded here dynamically -->
+                <div class="cart-empty" id="emptyCart">
+                    <i class="fas fa-shopping-cart"></i>
+                    <h3>Seu carrinho está vazio</h3>
+                    <p>Adicione itens dos restaurantes para começar</p>
+                </div>
+            </div>
+            <div class="cart-summary" id="cartSummary" style="display: none;">
+                <div class="summary-row">
+                    <span>Subtotal</span>
+                    <span id="cartSubtotal">0 Kz</span>
+                </div>
+                <div class="summary-row">
+                    <span>Taxa de Entrega</span>
+                    <span id="deliveryFee">0 Kz</span>
+                </div>
+                <div class="summary-row summary-total">
+                    <span>Total</span>
+                    <span id="cartTotal">0 Kz</span>
+                </div>
+                <button class="btn btn-primary btn-checkout" id="checkoutBtn">
+                    <i class="fab fa-whatsapp"></i> Finalizar via WhatsApp
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Municipality Selection Modal -->
+    <div class="municipality-modal" id="municipalityModal">
+        <div class="municipality-content">
+            <h2>👋 Bem-vindo à Froxe Express!</h2>
+            <p>Escolha um município para filtrar os restaurantes ou selecione "Todos" para ver todos os restaurantes disponíveis.</p>
+            
+            <div class="municipality-options" id="municipalityOptions">
+                <div class="municipality-option" data-municipio="">
+                    <h4>Todos os Municípios</h4>
+                    <p>Ver todos os restaurantes disponíveis em Luanda</p>
+                </div>
+                <div class="municipality-option" data-municipio="belas">
+                    <h4>Belas</h4>
+                    <p>Mesmo município: 900 Kz<br>Outro município: 1200 Kz</p>
+                </div>
+                <div class="municipality-option" data-municipio="cacuaco">
+                    <h4>Cacuaco</h4>
+                    <p>Mesmo município: 900 Kz<br>Outro município: 1200 Kz</p>
+                </div>
+                <div class="municipality-option" data-municipio="cazenga">
+                    <h4>Cazenga</h4>
+                    <p>Mesmo município: 900 Kz<br>Outro município: 1200 Kz</p>
+                </div>
+                <div class="municipality-option" data-municipio="viana">
+                    <h4>Viana</h4>
+                    <p>Mesmo município: 900 Kz<br>Outro município: 1200 Kz</p>
+                </div>
+                <div class="municipality-option" data-municipio="talatona">
+                    <h4>Talatona</h4>
+                    <p>Mesmo município: 900 Kz<br>Outro município: 1200 Kz</p>
+                </div>
+                <div class="municipality-option" data-municipio="kilamba">
+                    <h4>Kilamba Kiaxi</h4>
+                    <p>Mesmo município: 900 Kz<br>Outro município: 1200 Kz</p>
+                </div>
+                <div class="municipality-option" data-municipio="sambizanga">
+                    <h4>Sambizanga</h4>
+                    <p>Mesmo município: 900 Kz<br>Outro município: 1200 Kz</p>
+                </div>
+                <div class="municipality-option" data-municipio="maianga">
+                    <h4>Maianga</h4>
+                    <p>Mesmo município: 900 Kz<br>Outro município: 1200 Kz</p>
+                </div>
+                <div class="municipality-option" data-municipio="ruila">
+                    <h4>RuiLA</h4>
+                    <p>Mesmo município: 900 Kz<br>Outro município: 1200 Kz</p>
+                </div>
+            </div>
+            
+            <div class="municipality-footer">
+                <button class="btn btn-secondary" id="skipForNow">Pular por agora</button>
+                <button class="btn btn-primary" id="confirmMunicipio">Confirmar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ============================================
+        // CONFIGURAÇÃO DO FIREBASE
+        // ============================================
+        const firebaseConfig = {
+            apiKey: "AIzaSyDY3MpaMHfZgSw8MqX6b_GPtfWVTiABYDg",
+            authDomain: "froxe-express.firebaseapp.com",
+            databaseURL: "https://froxe-express-default-rtdb.firebaseio.com",
+            projectId: "froxe-express",
+            storageBucket: "froxe-express.firebasestorage.app",
+            messagingSenderId: "366051134318",
+            appId: "1:366051134318:web:7435fd8916c76dd3044f7f"
+        };
+
+        // ============================================
+        // INICIALIZAÇÃO DO FIREBASE
+        // ============================================
+        let froxeFirebase = null;
+        let firebaseInitialized = false;
+        let allRestaurants = [];
+        
+        try {
+            console.log("🚀 Inicializando Firebase...");
+            
+            if (firebase.apps.length === 0) {
+                const firebaseApp = firebase.initializeApp(firebaseConfig);
+                console.log("✅ Firebase inicializado com sucesso!");
+            } else {
+                console.log("✅ Firebase já inicializado, reutilizando...");
+            }
+            
+            froxeFirebase = firebase.database();
+            firebase.auth();
+            firebaseInitialized = true;
+            
+            // Autenticação anônima
+            firebase.auth().signInAnonymously()
+                .then(() => console.log("✅ Autenticado anonimamente"))
+                .catch(error => console.warn("⚠️ Autenticação anônima falhou:", error));
+            
+        } catch (error) {
+            console.error("❌ ERRO na inicialização do Firebase:", error);
+            firebaseInitialized = false;
+        }
+
+        // ============================================
+        // VARIÁVEIS GLOBAIS
+        // ============================================
+        let cart = [];
+        let selectedMunicipio = '';
+        let isFirstVisit = true;
+        let currentSearchTerm = '';
+        let userRatings = {};
+        let userId = '';
+        let userLocation = null;
+
+        // ============================================
+        // ELEMENTOS DOM
+        // ============================================
+        const cartBtn = document.getElementById('cartBtn');
+        const cartModal = document.getElementById('cartModal');
+        const closeCart = document.getElementById('closeCart');
+        const cartItems = document.getElementById('cartItems');
+        const emptyCart = document.getElementById('emptyCart');
+        const cartSummary = document.getElementById('cartSummary');
+        const cartSubtotal = document.getElementById('cartSubtotal');
+        const deliveryFeeEl = document.getElementById('deliveryFee');
+        const cartTotal = document.getElementById('cartTotal');
+        const cartCount = document.getElementById('cartCount');
+        const checkoutBtn = document.getElementById('checkoutBtn');
+        const municipioSelect = document.getElementById('municipioSelect');
+        const municipioSelector = document.getElementById('municipioSelector');
+        const municipalityModal = document.getElementById('municipalityModal');
+        const confirmMunicipioBtn = document.getElementById('confirmMunicipio');
+        const skipForNowBtn = document.getElementById('skipForNow');
+        const municipalityOptions = document.querySelectorAll('.municipality-option');
+        const restaurantsGrid = document.getElementById('restaurantsGrid');
+        const whatsappRegisterBtn = document.getElementById('whatsappRegisterBtn');
+        const footerMunicipioLinks = document.querySelectorAll('.footer-links a[data-municipio]');
+        const filterInfo = document.getElementById('filterInfo');
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const mobileNav = document.getElementById('mobileNav');
+        const desktopNav = document.getElementById('desktopNav');
+        const backToTop = document.getElementById('backToTop');
+        
+        // Elementos da busca
+        const mainSearchInput = document.getElementById('mainSearchInput');
+        const mainSearchButton = document.getElementById('mainSearchButton');
+        const mainSearchResults = document.getElementById('mainSearchResults');
+        const mainSearchContainer = document.getElementById('mainSearchContainer');
+
+        // ============================================
+        // INICIALIZAÇÃO DA PÁGINA
+        // ============================================
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log("📱 Página carregada");
+            
+            userId = localStorage.getItem('froxeUserId');
+            if (!userId) {
+                userId = 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+                localStorage.setItem('froxeUserId', userId);
+            }
+            
+            loadUserRatings();
+            
+            if (checkFirstVisit()) {
+                setTimeout(() => {
+                    municipalityModal.style.display = 'flex';
+                    document.body.style.overflow = 'hidden';
+                }, 500);
+            }
+            
+            loadAllRestaurants();
+            
+            const savedCart = localStorage.getItem('froxeCart');
+            if (savedCart) {
+                cart = JSON.parse(savedCart);
+                updateCartDisplay();
+            }
+            
+            setupEventListeners();
+            
+            whatsappRegisterBtn.addEventListener('click', function() {
+                const phoneNumber = "972481656";
+                const message = encodeURIComponent("Olá! Gostaria de registrar meu restaurante na Froxe Express. Poderia me fornecer mais informações?");
+                window.open(`https://wa.me/244${phoneNumber}?text=${message}`, '_blank');
+            });
+        });
+
+        // ============================================
+        // SISTEMA DE AVALIAÇÃO
+        // ============================================
+        function loadUserRatings() {
+            const savedRatings = localStorage.getItem(`froxeUserRatings_${userId}`);
+            if (savedRatings) {
+                userRatings = JSON.parse(savedRatings);
+            } else {
+                userRatings = {};
+            }
+        }
+
+        function saveUserRating(restaurantId, rating) {
+            userRatings[restaurantId] = {
+                rating: rating,
+                date: new Date().toISOString()
+            };
+            
+            localStorage.setItem(`froxeUserRatings_${userId}`, JSON.stringify(userRatings));
+            
+            if (firebaseInitialized && froxeFirebase) {
+                try {
+                    froxeFirebase.ref(`userRatings/${userId}/${restaurantId}`).set({
+                        rating: rating,
+                        date: new Date().toISOString(),
+                        userId: userId,
+                        restaurantId: restaurantId
+                    });
+                    
+                    updateRestaurantRating(restaurantId, rating);
+                    
+                } catch (error) {
+                    console.error("Erro ao salvar avaliação no Firebase:", error);
+                }
+            }
+        }
+
+        async function updateRestaurantRating(restaurantId, newRating) {
+            try {
+                const snapshot = await froxeFirebase.ref(`restaurantRatings/${restaurantId}`).once('value');
+                let ratings = snapshot.val() || { total: 0, sum: 0, count: 0 };
+                
+                ratings.total = (ratings.total || 0) + newRating;
+                ratings.count = (ratings.count || 0) + 1;
+                ratings.sum = ratings.total / ratings.count;
+                
+                await froxeFirebase.ref(`restaurantRatings/${restaurantId}`).set(ratings);
+                
+                console.log(`Avaliação atualizada para restaurante ${restaurantId}: ${ratings.sum.toFixed(1)}`);
+                
+            } catch (error) {
+                console.error("Erro ao atualizar avaliação do restaurante:", error);
+            }
+        }
+
+        async function getRestaurantRating(restaurantId) {
+            try {
+                if (firebaseInitialized && froxeFirebase) {
+                    const snapshot = await froxeFirebase.ref(`restaurantRatings/${restaurantId}`).once('value');
+                    const ratings = snapshot.val();
+                    
+                    if (ratings && ratings.sum) {
+                        return ratings.sum.toFixed(1);
+                    }
+                }
+                
+                return "4.5";
+                
+            } catch (error) {
+                console.error("Erro ao buscar avaliação:", error);
+                return "4.5";
+            }
+        }
+
+        function renderStarRating(restaurantId, currentRating = 0, userHasRated = false) {
+            const stars = [];
+            const userRating = userRatings[restaurantId];
+            
+            for (let i = 1; i <= 5; i++) {
+                const starClass = i <= currentRating ? 'star active' : 'star';
+                stars.push(`
+                    <i class="fas fa-star ${starClass}" 
+                       data-rating="${i}" 
+                       data-restaurant-id="${restaurantId}"
+                       ${userHasRated ? 'style="cursor: default;"' : ''}></i>
+                `);
+            }
+            
+            return `
+                <div class="rating-container">
+                    <div class="stars">
+                        ${stars.join('')}
+                    </div>
+                    <span class="rating-text">${parseFloat(currentRating).toFixed(1)}</span>
+                </div>
+                ${userRating ? `
+                    <div class="user-rating show">
+                        <i class="fas fa-user-check"></i> Você avaliou: ${userRating.rating} estrelas
+                    </div>
+                ` : ''}
+            `;
+        }
+
+        // ============================================
+        // BARRA DE PESQUISA
+        // ============================================
+        function performSearch(searchTerm, targetElement = null) {
+            if (!searchTerm.trim()) {
+                if (targetElement) {
+                    targetElement.style.display = 'none';
+                }
+                return;
+            }
+            
+            currentSearchTerm = searchTerm.toLowerCase();
+            const searchWords = currentSearchTerm.split(' ').filter(word => word.length > 0);
+            
+            let filteredRestaurants = allRestaurants.filter(restaurant => {
+                if (selectedMunicipio && restaurant.municipio !== selectedMunicipio) {
+                    return false;
+                }
+                
+                const searchFields = [
+                    restaurant.name.toLowerCase(),
+                    restaurant.category.toLowerCase(),
+                    restaurant.description.toLowerCase(),
+                    formatMunicipioName(restaurant.municipio).toLowerCase()
+                ];
+                
+                const searchText = searchFields.join(' ');
+                
+                return searchWords.every(word => searchText.includes(word));
+            });
+            
+            displaySearchResults(filteredRestaurants, targetElement);
+        }
+
+        function displaySearchResults(results, targetElement) {
+            if (!targetElement) return;
+            
+            if (results.length === 0) {
+                targetElement.innerHTML = `
+                    <div class="search-empty">
+                        <i class="fas fa-search"></i>
+                        <p>Nenhum restaurante encontrado para "${currentSearchTerm}"</p>
+                    </div>
+                `;
+                targetElement.style.display = 'block';
+                return;
+            }
+            
+            const resultsHtml = results.slice(0, 10).map(restaurant => `
+                <div class="search-result-item" data-restaurant-id="${restaurant.id}">
+                    <img src="${restaurant.image}" alt="${restaurant.name}">
+                    <div class="search-result-info">
+                        <h4>${restaurant.name}</h4>
+                        <p>${restaurant.category} • ${formatMunicipioName(restaurant.municipio)}</p>
+                    </div>
+                </div>
+            `).join('');
+            
+            targetElement.innerHTML = resultsHtml;
+            targetElement.style.display = 'block';
+            
+            targetElement.querySelectorAll('.search-result-item').forEach(item => {
+                item.addEventListener('click', function() {
+                    const restaurantId = this.getAttribute('data-restaurant-id');
+                    const restaurant = allRestaurants.find(r => r.id == restaurantId);
+                    
+                    if (restaurant) {
+                        targetElement.style.display = 'none';
+                        mainSearchInput.value = '';
+                        showNotification(`Você selecionou: ${restaurant.name}`);
+                        scrollToRestaurant(restaurantId);
+                    }
+                });
+            });
+        }
+
+        function scrollToRestaurant(restaurantId) {
+            const restaurantCard = document.querySelector(`.restaurant-card[data-restaurant-id="${restaurantId}"]`);
+            if (restaurantCard) {
+                restaurantCard.scrollIntoView({ 
+                    behavior: 'smooth',
+                    block: 'center'
+                });
+                
+                restaurantCard.style.animation = 'none';
+                restaurantCard.offsetHeight;
+                restaurantCard.style.animation = 'pulse 1s';
+                
+                const style = document.createElement('style');
+                style.innerHTML = `
+                    @keyframes pulse {
+                        0% { box-shadow: 0 0 0 0 rgba(255, 107, 53, 0.7); }
+                        70% { box-shadow: 0 0 0 10px rgba(255, 107, 53, 0); }
+                        100% { box-shadow: 0 0 0 0 rgba(255, 107, 53, 0); }
+                    }
+                `;
+                document.head.appendChild(style);
+            }
+        }
+
+        // ============================================
+        // FUNÇÃO DE EMBARALHAR RESTAURANTES
+        // ============================================
+        function shuffleArray(array) {
+            const newArray = [...array];
+            for (let i = newArray.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+            }
+            return newArray;
+        }
+
+        // ============================================
+        // CONFIGURAR EVENT LISTENERS
+        // ============================================
+        function setupEventListeners() {
+            window.addEventListener('scroll', function() {
+                if (window.pageYOffset > 300) {
+                    backToTop.style.display = 'flex';
+                } else {
+                    backToTop.style.display = 'none';
+                }
+            });
+            
+            backToTop.addEventListener('click', function() {
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+            });
+            
+            mobileMenuBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                mobileNav.classList.toggle('active');
+                this.classList.toggle('active');
+                
+                if (mobileNav.classList.contains('active')) {
+                    document.body.style.overflow = 'hidden';
+                } else {
+                    document.body.style.overflow = 'auto';
+                }
+            });
+            
+            mobileNav.addEventListener('click', function(e) {
+                if (e.target.tagName === 'A') {
+                    mobileNav.classList.remove('active');
+                    mobileMenuBtn.classList.remove('active');
+                    document.body.style.overflow = 'auto';
+                }
+            });
+            
+            document.addEventListener('click', function(e) {
+                if (!mobileNav.contains(e.target) && !mobileMenuBtn.contains(e.target) && mobileNav.classList.contains('active')) {
+                    mobileNav.classList.remove('active');
+                    mobileMenuBtn.classList.remove('active');
+                    document.body.style.overflow = 'auto';
+                }
+            });
+            
+            mainSearchInput.addEventListener('input', function() {
+                performSearch(this.value, mainSearchResults);
+            });
+            
+            mainSearchButton.addEventListener('click', function() {
+                performSearch(mainSearchInput.value, mainSearchResults);
+            });
+            
+            mainSearchInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    performSearch(this.value, mainSearchResults);
+                }
+            });
+            
+            document.addEventListener('click', function(e) {
+                if (!mainSearchInput.contains(e.target) && !mainSearchResults.contains(e.target)) {
+                    mainSearchResults.style.display = 'none';
+                }
+            });
+            
+            municipioSelect.addEventListener('change', function() {
+                selectedMunicipio = this.value;
+                localStorage.setItem('froxeMunicipio', selectedMunicipio);
+                updateCartDisplay();
+                updateFilterInfo();
+                filterAndRenderRestaurants();
+                
+                if (selectedMunicipio) {
+                    showNotification(`Filtrando restaurantes em: ${formatMunicipioName(selectedMunicipio)}`);
+                } else {
+                    showNotification('Mostrando todos os restaurantes');
+                }
+            });
+            
+            municipioSelector.addEventListener('click', function(e) {
+                if (window.innerWidth <= 768) {
+                    e.stopPropagation();
+                }
+            });
+            
+            footerMunicipioLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const municipio = this.getAttribute('data-municipio');
+                    selectedMunicipio = municipio || '';
+                    municipioSelect.value = municipio || '';
+                    localStorage.setItem('froxeMunicipio', selectedMunicipio);
+                    
+                    updateCartDisplay();
+                    updateFilterInfo();
+                    filterAndRenderRestaurants();
+                    
+                    if (selectedMunicipio) {
+                        showNotification(`Filtrando restaurantes em: ${formatMunicipioName(selectedMunicipio)}`);
+                    } else {
+                        showNotification('Mostrando todos os restaurantes');
+                    }
+                    
+                    if (window.innerWidth <= 768 && mobileNav.classList.contains('active')) {
+                        mobileNav.classList.remove('active');
+                        mobileMenuBtn.classList.remove('active');
+                        document.body.style.overflow = 'auto';
+                    }
+                });
+            });
+            
+            let selectedOption = null;
+            
+            municipalityOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    municipalityOptions.forEach(opt => opt.classList.remove('selected'));
+                    this.classList.add('selected');
+                    selectedOption = this;
+                });
+            });
+            
+            confirmMunicipioBtn.addEventListener('click', function() {
+                if (selectedOption) {
+                    selectedMunicipio = selectedOption.getAttribute('data-municipio') || '';
+                    municipioSelect.value = selectedMunicipio || '';
+                    localStorage.setItem('froxeMunicipio', selectedMunicipio);
+                    
+                    municipalityModal.style.display = 'none';
+                    document.body.style.overflow = 'auto';
+                    
+                    updateFilterInfo();
+                    filterAndRenderRestaurants();
+                    
+                    if (selectedMunicipio) {
+                        showNotification(`Filtrando restaurantes em: ${formatMunicipioName(selectedMunicipio)}`);
+                    } else {
+                        showNotification('Mostrando todos os restaurantes');
+                    }
+                } else {
+                    showNotification('Por favor, selecione uma opção', 'error');
+                }
+            });
+            
+            skipForNowBtn.addEventListener('click', function() {
+                selectedMunicipio = '';
+                municipioSelect.value = '';
+                localStorage.setItem('froxeMunicipio', '');
+                
+                municipalityModal.style.display = 'none';
+                document.body.style.overflow = 'auto';
+                
+                updateFilterInfo();
+                filterAndRenderRestaurants();
+                
+                showNotification('Mostrando todos os restaurantes');
+            });
+            
+            municipalityModal.addEventListener('click', function(e) {
+                if (e.target === municipalityModal) {
+                    if (isFirstVisit) {
+                        showNotification('Por favor, selecione uma opção para continuar', 'error');
+                        return;
+                    }
+                    municipalityModal.style.display = 'none';
+                    document.body.style.overflow = 'auto';
+                }
+            });
+            
+            cartBtn.addEventListener('click', () => {
+                cartModal.classList.add('active');
+                updateCartDisplay();
+                document.body.style.overflow = 'hidden';
+            });
+
+            closeCart.addEventListener('click', () => {
+                cartModal.classList.remove('active');
+                document.body.style.overflow = 'auto';
+            });
+
+            cartModal.addEventListener('click', (e) => {
+                if (e.target === cartModal) {
+                    cartModal.classList.remove('active');
+                    document.body.style.overflow = 'auto';
+                }
+            });
+            
+            checkoutBtn.addEventListener('click', processCheckout);
+            
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function(e) {
+                    if (this.getAttribute('href') === '#') return;
+                    
+                    e.preventDefault();
+                    const targetId = this.getAttribute('href');
+                    const targetElement = document.querySelector(targetId);
+                    
+                    if (targetElement) {
+                        const headerHeight = document.querySelector('header').offsetHeight;
+                        window.scrollTo({
+                            top: targetElement.offsetTop - headerHeight,
+                            behavior: 'smooth'
+                        });
+                    }
+                });
+            });
+            
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    if (municipalityModal.style.display === 'flex') {
+                        if (isFirstVisit) {
+                            showNotification('Por favor, selecione uma opção para continuar', 'error');
+                            return;
+                        }
+                        municipalityModal.style.display = 'none';
+                        document.body.style.overflow = 'auto';
+                    }
+                    if (cartModal.classList.contains('active')) {
+                        cartModal.classList.remove('active');
+                        document.body.style.overflow = 'auto';
+                    }
+                    if (mobileNav.classList.contains('active')) {
+                        mobileNav.classList.remove('active');
+                        mobileMenuBtn.classList.remove('active');
+                        document.body.style.overflow = 'auto';
+                    }
+                }
+            });
+            
+            document.addEventListener('touchstart', function(e) {
+                if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT' || e.target.tagName === 'TEXTAREA') {
+                }
+            }, { passive: true });
+            
+            let scrollTimeout;
+            window.addEventListener('scroll', function() {
+                document.body.classList.add('scrolling');
+                clearTimeout(scrollTimeout);
+                scrollTimeout = setTimeout(function() {
+                    document.body.classList.remove('scrolling');
+                }, 100);
+            }, { passive: true });
+            
+            let startY = 0;
+            document.addEventListener('touchstart', function(e) {
+                startY = e.touches[0].clientY;
+            }, { passive: true });
+            
+            document.addEventListener('touchmove', function(e) {
+                const currentY = e.touches[0].clientY;
+                if (window.scrollY === 0 && currentY > startY) {
+                    e.preventDefault();
+                }
+            }, { passive: false });
+        }
+
+        // ============================================
+        // FUNÇÕES DE RESTAURANTES
+        // ============================================
+        async function loadAllRestaurants() {
+            console.log("🍴 Carregando TODOS os restaurantes...");
+            
+            restaurantsGrid.innerHTML = `
+                <div style="grid-column: 1 / -1; text-align: center; padding: 40px;">
+                    <div class="loading-spinner" style="margin: 0 auto 20px;"></div>
+                    <p>Carregando todos os restaurantes...</p>
+                </div>
+            `;
+            
+            try {
+                if (firebaseInitialized && froxeFirebase) {
+                    const snapshot = await froxeFirebase.ref('restaurants').once('value');
+                    const data = snapshot.val();
+                    
+                    if (data) {
+                        allRestaurants = await Promise.all(
+                            Object.values(data)
+                                .filter(restaurant => 
+                                    !restaurant._deleted && 
+                                    restaurant.status === 'active'
+                                )
+                                .map(async restaurant => {
+                                    const rating = await getRestaurantRating(restaurant.id || Date.now());
+                                    
+                                    return {
+                                        id: restaurant.id || Date.now(),
+                                        name: restaurant.name || 'Restaurante Sem Nome',
+                                        category: restaurant.category || 'Geral',
+                                        image: restaurant.image || 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80',
+                                        description: restaurant.description || `Restaurante ${restaurant.name || ''} - Entrega rápida e de qualidade`,
+                                        deliveryTime: restaurant.deliveryTime || '30-45 min',
+                                        rating: rating,
+                                        status: 'open',
+                                        whatsapp: restaurant.whatsapp || '+244900000000',
+                                        municipio: restaurant.municipio || 'luanda'
+                                    };
+                                })
+                        );
+                        
+                        console.log(`✅ ${allRestaurants.length} restaurantes carregados do Firebase`);
+                        localStorage.setItem('froxeAllRestaurants', JSON.stringify(allRestaurants));
+                    }
+                }
+                
+                if (allRestaurants.length === 0) {
+                    const localRestaurants = JSON.parse(localStorage.getItem('froxeAllRestaurants') || '[]');
+                    allRestaurants = localRestaurants;
+                    console.log(`📁 ${allRestaurants.length} restaurantes carregados do localStorage`);
+                }
+                
+                updateFilterInfo();
+                filterAndRenderRestaurants();
+                
+            } catch (error) {
+                console.error("❌ Erro ao carregar restaurantes:", error);
+                showNoRestaurantsMessage();
+            }
+        }
+        
+        function filterAndRenderRestaurants() {
+            let filteredRestaurants = [];
+            
+            if (selectedMunicipio) {
+                filteredRestaurants = allRestaurants.filter(restaurant => 
+                    restaurant.municipio === selectedMunicipio
+                );
+                console.log(`🔍 ${filteredRestaurants.length} restaurantes filtrados para ${selectedMunicipio}`);
+            } else {
+                filteredRestaurants = [...allRestaurants];
+                console.log(`🌍 Mostrando todos os ${filteredRestaurants.length} restaurantes`);
+            }
+            
+            if (currentSearchTerm) {
+                const searchWords = currentSearchTerm.split(' ').filter(word => word.length > 0);
+                filteredRestaurants = filteredRestaurants.filter(restaurant => {
+                    const searchFields = [
+                        restaurant.name.toLowerCase(),
+                        restaurant.category.toLowerCase(),
+                        restaurant.description.toLowerCase(),
+                        formatMunicipioName(restaurant.municipio).toLowerCase()
+                    ];
+                    
+                    const searchText = searchFields.join(' ');
+                    return searchWords.every(word => searchText.includes(word));
+                });
+            }
+            
+            filteredRestaurants = shuffleArray(filteredRestaurants);
+            
+            renderRestaurants(filteredRestaurants);
+        }
+        
+        async function renderRestaurants(restaurantsToRender) {
+            if (restaurantsToRender.length === 0) {
+                showNoRestaurantsMessage();
+                return;
+            }
+            
+            restaurantsGrid.innerHTML = '';
+            
+            for (const restaurant of restaurantsToRender) {
+                const userHasRated = userRatings[restaurant.id] !== undefined;
+                const userRating = userHasRated ? userRatings[restaurant.id].rating : 0;
+                
+                const restaurantCard = document.createElement('div');
+                restaurantCard.className = 'restaurant-card';
+                restaurantCard.setAttribute('data-restaurant-id', restaurant.id);
+                restaurantCard.innerHTML = `
+                    <div class="status-badge open">ABERTO</div>
+                    <img src="${restaurant.image}" alt="${restaurant.name}" class="restaurant-image" loading="lazy">
+                    <div class="restaurant-info">
+                        <h3 class="restaurant-name">${restaurant.name}</h3>
+                        <span class="restaurant-category">${restaurant.category}</span>
+                        
+                        ${renderStarRating(restaurant.id, parseFloat(restaurant.rating), userHasRated)}
+                        
+                        <div class="restaurant-meta">
+                            <div><i class="fas fa-clock"></i> ${restaurant.deliveryTime}</div>
+                            <div><i class="fas fa-map-marker-alt"></i> ${formatMunicipioName(restaurant.municipio)}</div>
+                        </div>
+                        <p class="restaurant-description">${restaurant.description}</p>
+                        <div class="restaurant-actions">
+                            <a href="restaurante.html?id=${restaurant.id}" class="btn-view-menu">Ver Cardápio</a>
+                            <div class="restaurant-status">
+                                <i class="fas fa-circle status-open"></i>
+                                <span>Aberto</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                restaurantsGrid.appendChild(restaurantCard);
+            }
+            
+            setTimeout(() => {
+                document.querySelectorAll('.star:not([style*="cursor: default"])').forEach(star => {
+                    star.addEventListener('click', async function() {
+                        const restaurantId = this.getAttribute('data-restaurant-id');
+                        const rating = parseInt(this.getAttribute('data-rating'));
+                        
+                        if (userRatings[restaurantId]) {
+                            showNotification('Você já avaliou este restaurante!', 'warning');
+                            return;
+                        }
+                        
+                        saveUserRating(restaurantId, rating);
+                        
+                        const starsContainer = this.parentElement;
+                        const stars = starsContainer.querySelectorAll('.star');
+                        
+                        stars.forEach((star, index) => {
+                            if (index < rating) {
+                                star.classList.add('active');
+                            } else {
+                                star.classList.remove('active');
+                            }
+                            star.style.cursor = 'default';
+                        });
+                        
+                        const ratingText = starsContainer.nextElementSibling;
+                        const currentRating = parseFloat(ratingText.textContent);
+                        const newRating = ((currentRating * (allRestaurants.find(r => r.id == restaurantId)?.ratingCount || 0)) + rating) / 
+                                          ((allRestaurants.find(r => r.id == restaurantId)?.ratingCount || 0) + 1);
+                        
+                        ratingText.textContent = newRating.toFixed(1);
+                        
+                        const userRatingElement = starsContainer.parentElement.querySelector('.user-rating') || 
+                                                 document.createElement('div');
+                        
+                        if (!userRatingElement.classList.contains('user-rating')) {
+                            userRatingElement.className = 'user-rating';
+                            starsContainer.parentElement.appendChild(userRatingElement);
+                        }
+                        
+                        userRatingElement.innerHTML = `<i class="fas fa-user-check"></i> Você avaliou: ${rating} estrelas`;
+                        userRatingElement.classList.add('show');
+                        
+                        const restaurantIndex = allRestaurants.findIndex(r => r.id == restaurantId);
+                        if (restaurantIndex !== -1) {
+                            allRestaurants[restaurantIndex].rating = newRating.toFixed(1);
+                            allRestaurants[restaurantIndex].ratingCount = (allRestaurants[restaurantIndex].ratingCount || 0) + 1;
+                        }
+                        
+                        showNotification(`Obrigado! Você avaliou "${allRestaurants.find(r => r.id == restaurantId)?.name}" com ${rating} estrelas!`);
+                    });
+                });
+            }, 100);
+        }
+        
+        function updateFilterInfo() {
+            if (!selectedMunicipio && !currentSearchTerm) {
+                filterInfo.innerHTML = `
+                    <div class="filter-badge" onclick="document.getElementById('municipioSelect').focus()">
+                        <i class="fas fa-filter"></i>
+                        Mostrando todos os restaurantes (${allRestaurants.length})
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                `;
+            } else {
+                let filterText = '';
+                if (selectedMunicipio) {
+                    filterText += `Filtrado: ${formatMunicipioName(selectedMunicipio)}`;
+                }
+                if (currentSearchTerm) {
+                    if (filterText) filterText += ' • ';
+                    filterText += `Busca: "${currentSearchTerm}"`;
+                }
+                
+                const filteredCount = allRestaurants.filter(r => {
+                    let matches = true;
+                    if (selectedMunicipio) {
+                        matches = matches && r.municipio === selectedMunicipio;
+                    }
+                    if (currentSearchTerm) {
+                        const searchFields = [
+                            r.name.toLowerCase(),
+                            r.category.toLowerCase(),
+                            r.description.toLowerCase(),
+                            formatMunicipioName(r.municipio).toLowerCase()
+                        ];
+                        const searchText = searchFields.join(' ');
+                        const searchWords = currentSearchTerm.split(' ').filter(word => word.length > 0);
+                        matches = matches && searchWords.every(word => searchText.includes(word));
+                    }
+                    return matches;
+                }).length;
+                
+                filterInfo.innerHTML = `
+                    <div class="filter-badge" onclick="document.getElementById('municipioSelect').focus()">
+                        <i class="fas fa-filter"></i>
+                        ${filterText} (${filteredCount} restaurantes)
+                        <i class="fas fa-times" onclick="clearFilter(event)"></i>
+                    </div>
+                `;
+            }
+        }
+        
+        function clearFilter(event) {
+            event.stopPropagation();
+            selectedMunicipio = '';
+            municipioSelect.value = '';
+            currentSearchTerm = '';
+            mainSearchInput.value = '';
+            mainSearchResults.style.display = 'none';
+            localStorage.setItem('froxeMunicipio', '');
+            
+            updateFilterInfo();
+            filterAndRenderRestaurants();
+            showNotification('Filtro removido - Mostrando todos os restaurantes');
+        }
+        
+        function showNoRestaurantsMessage() {
+            let message = '';
+            
+            if (selectedMunicipio && currentSearchTerm) {
+                message = `Nenhum restaurante encontrado em ${formatMunicipioName(selectedMunicipio)} para "${currentSearchTerm}"`;
+            } else if (selectedMunicipio) {
+                message = `Nenhum restaurante disponível em ${formatMunicipioName(selectedMunicipio)}`;
+            } else if (currentSearchTerm) {
+                message = `Nenhum restaurante encontrado para "${currentSearchTerm}"`;
+            } else {
+                message = 'Nenhum restaurante disponível';
+            }
+            
+            restaurantsGrid.innerHTML = `
+                <div style="grid-column: 1 / -1; text-align: center; padding: 50px 20px;">
+                    <i class="fas fa-store" style="font-size: 2.5rem; color: var(--gray); margin-bottom: 15px;"></i>
+                    <h3 style="color: var(--gray); margin-bottom: 10px; font-size: 1.2rem;">
+                        ${message}
+                    </h3>
+                    <p style="color: var(--gray); margin-bottom: 20px; font-size: 0.9rem;">
+                        ${selectedMunicipio || currentSearchTerm ? 'Tente remover os filtros ou buscar por outro termo.' : 'Volte mais tarde para ver nossos restaurantes parceiros.'}
+                    </p>
+                    ${selectedMunicipio || currentSearchTerm ? `
+                        <button class="btn btn-secondary" onclick="clearFilterAndShowAll()" style="margin-bottom: 10px;">
+                            <i class="fas fa-times"></i> Remover Filtros
+                        </button>
+                    ` : ''}
+                    <button class="btn btn-primary" onclick="document.getElementById('municipalityModal').style.display='flex'; document.body.style.overflow='hidden'">
+                        <i class="fas fa-map-marker-alt"></i> ${selectedMunicipio ? 'Alterar Município' : 'Selecionar Município'}
+                    </button>
+                </div>
+            `;
+        }
+        
+        function clearFilterAndShowAll() {
+            selectedMunicipio = '';
+            municipioSelect.value = '';
+            currentSearchTerm = '';
+            mainSearchInput.value = '';
+            mainSearchResults.style.display = 'none';
+            localStorage.setItem('froxeMunicipio', '');
+            
+            updateFilterInfo();
+            filterAndRenderRestaurants();
+            showNotification('Mostrando todos os restaurantes');
+        }
+
+        // ============================================
+        // FUNÇÕES DO CARRINHO
+        // ============================================
+        function updateCartCount() {
+            const totalItems = cart.reduce((total, item) => total + item.quantity, 0);
+            cartCount.textContent = totalItems;
+        }
+
+        function updateCartDisplay() {
+            if (cart.length === 0) {
+                emptyCart.style.display = 'block';
+                cartSummary.style.display = 'none';
+                return;
+            }
+            
+            emptyCart.style.display = 'none';
+            cartSummary.style.display = 'block';
+            
+            cartItems.innerHTML = '';
+            
+            let subtotal = 0;
+            
+            cart.forEach(item => {
+                const itemElement = document.createElement('div');
+                itemElement.className = 'cart-item';
+                itemElement.innerHTML = `
+                    <div class="cart-item-info">
+                        <h4>${item.name}</h4>
+                        <p>${item.description}</p>
+                        <div class="cart-item-price">${item.price.toLocaleString('pt-AO')} Kz</div>
+                    </div>
+                    <div class="cart-item-actions">
+                        <button class="decrease-item" data-item-id="${item.id}">-</button>
+                        <span class="cart-item-quantity">${item.quantity}</span>
+                        <button class="increase-item" data-item-id="${item.id}">+</button>
+                        <button class="remove-item" data-item-id="${item.id}">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                `;
+                cartItems.appendChild(itemElement);
+                
+                subtotal += item.price * item.quantity;
+            });
+            
+            document.querySelectorAll('.decrease-item').forEach(button => {
+                button.addEventListener('click', function() {
+                    const itemId = parseInt(this.getAttribute('data-item-id'));
+                    decreaseItemQuantity(itemId);
+                });
+            });
+            
+            document.querySelectorAll('.increase-item').forEach(button => {
+                button.addEventListener('click', function() {
+                    const itemId = parseInt(this.getAttribute('data-item-id'));
+                    increaseItemQuantity(itemId);
+                });
+            });
+            
+            document.querySelectorAll('.remove-item').forEach(button => {
+                button.addEventListener('click', function() {
+                    const itemId = parseInt(this.getAttribute('data-item-id'));
+                    removeItemFromCart(itemId);
+                });
+            });
+            
+            const fee = calculateDeliveryFee();
+            const total = subtotal + fee;
+            
+            cartSubtotal.textContent = subtotal.toLocaleString('pt-AO') + ' Kz';
+            deliveryFeeEl.textContent = fee.toLocaleString('pt-AO') + ' Kz';
+            cartTotal.textContent = total.toLocaleString('pt-AO') + ' Kz';
+        }
+
+        function calculateDeliveryFee() {
+            if (!selectedMunicipio || cart.length === 0) {
+                return 0;
+            }
+            
+            const restaurantId = cart[0].restaurantId;
+            const restaurant = allRestaurants.find(r => r.id === restaurantId);
+            
+            if (!restaurant) {
+                return 0;
+            }
+            
+            if (restaurant.municipio === selectedMunicipio) {
+                return 900;
+            } else {
+                return 1200;
+            }
+        }
+
+        function increaseItemQuantity(itemId) {
+            const itemIndex = cart.findIndex(item => item.id === itemId);
+            if (itemIndex >= 0) {
+                cart[itemIndex].quantity += 1;
+                updateCartCount();
+                updateCartDisplay();
+                saveCartToStorage();
+            }
+        }
+
+        function decreaseItemQuantity(itemId) {
+            const itemIndex = cart.findIndex(item => item.id === itemId);
+            if (itemIndex >= 0) {
+                if (cart[itemIndex].quantity > 1) {
+                    cart[itemIndex].quantity -= 1;
+                } else {
+                    cart.splice(itemIndex, 1);
+                }
+                updateCartCount();
+                updateCartDisplay();
+                saveCartToStorage();
+            }
+        }
+
+        function removeItemFromCart(itemId) {
+            const itemIndex = cart.findIndex(item => item.id === itemId);
+            if (itemIndex >= 0) {
+                cart.splice(itemIndex, 1);
+                updateCartCount();
+                updateCartDisplay();
+                saveCartToStorage();
+            }
+        }
+
+        function saveCartToStorage() {
+            localStorage.setItem('froxeCart', JSON.stringify(cart));
+        }
+
+        // ============================================
+        // CHECKOUT
+        // ============================================
+        function processCheckout() {
+            if (cart.length === 0) {
+                showNotification('Seu carrinho está vazio. Adicione itens antes de finalizar.', 'error');
+                return;
+            }
+            
+            const restaurantId = cart[0].restaurantId;
+            const restaurant = allRestaurants.find(r => r.id === restaurantId);
+            
+            if (!restaurant || !restaurant.whatsapp) {
+                showNotification('Informações do restaurante não disponíveis.', 'error');
+                return;
+            }
+            
+            let message = `*NOVO PEDIDO - FROXE EXPRESS*\n\n`;
+            message += `*Restaurante:* ${restaurant.name}\n`;
+            
+            if (selectedMunicipio) {
+                message += `*Município do Cliente:* ${formatMunicipioName(selectedMunicipio)}\n`;
+            }
+            
+            message += `*Município do Restaurante:* ${formatMunicipioName(restaurant.municipio)}\n`;
+            message += `*Data:* ${new Date().toLocaleDateString('pt-AO')}\n`;
+            message += `*Hora:* ${new Date().toLocaleTimeString('pt-AO', { hour: '2-digit', minute: '2-digit' })}\n\n`;
+            message += `*ITENS DO PEDIDO:*\n`;
+            
+            let subtotal = 0;
+            cart.forEach(item => {
+                const itemTotal = item.price * item.quantity;
+                subtotal += itemTotal;
+                message += `- ${item.quantity}x ${item.name}: ${itemTotal.toLocaleString('pt-AO')} Kz\n`;
+            });
+            
+            const fee = calculateDeliveryFee();
+            const total = subtotal + fee;
+            
+            message += `\n*Subtotal:* ${subtotal.toLocaleString('pt-AO')} Kz\n`;
+            message += `*Taxa de Entrega:* ${fee.toLocaleString('pt-AO')} Kz\n`;
+            message += `*TOTAL:* ${total.toLocaleString('pt-AO')} Kz\n\n`;
+            message += `_Este pedido foi gerado automaticamente pelo site Froxe Express_`;
+            
+            const encodedMessage = encodeURIComponent(message);
+            const whatsappNumber = restaurant.whatsapp.replace(/\D/g, '');
+            
+            window.open(`https://wa.me/${whatsappNumber}?text=${encodedMessage}`, '_blank');
+            
+            saveOrderToHistory(restaurant);
+            
+            cart = [];
+            updateCartCount();
+            updateCartDisplay();
+            saveCartToStorage();
+            
+            cartModal.classList.remove('active');
+            document.body.style.overflow = 'auto';
+            
+            showNotification('Pedido enviado para o WhatsApp do restaurante!');
+        }
+
+        function saveOrderToHistory(restaurant) {
+            const orders = JSON.parse(localStorage.getItem('froxeOrders') || '[]');
+            
+            const order = {
+                id: 'ORD' + Date.now(),
+                date: new Date().toISOString(),
+                restaurantId: restaurant.id,
+                restaurantName: restaurant.name,
+                items: cart.map(item => ({
+                    name: item.name,
+                    quantity: item.quantity,
+                    price: item.price
+                })),
+                subtotal: cart.reduce((sum, item) => sum + (item.price * item.quantity), 0),
+                deliveryFee: calculateDeliveryFee(),
+                total: cart.reduce((sum, item) => sum + (item.price * item.quantity), 0) + calculateDeliveryFee(),
+                clientMunicipio: selectedMunicipio || 'Não especificado',
+                restaurantMunicipio: restaurant.municipio,
+                status: 'pending'
+            };
+            
+            orders.push(order);
+            localStorage.setItem('froxeOrders', JSON.stringify(orders));
+        }
+
+        // ============================================
+        // FUNÇÕES UTILITÁRIAS
+        // ============================================
+        function formatMunicipioName(municipio) {
+            if (!municipio) return 'Todos';
+            
+            const names = {
+                'belas': 'Belas',
+                'cacuaco': 'Cacuaco',
+                'cazenga': 'Cazenga',
+                'viana': 'Viana',
+                'talatona': 'Talatona',
+                'kilamba': 'Kilamba Kiaxi',
+                'sambizanga': 'Sambizanga',
+                'maianga': 'Maianga',
+                'ruila': 'RuiLA'
+            };
+            
+            return names[municipio] || municipio.charAt(0).toUpperCase() + municipio.slice(1);
+        }
+
+        // ============================================
+        // FUNÇÕES DE NOTIFICAÇÃO
+        // ============================================
+        function showNotification(message, type = 'success', duration = 3000) {
+            document.querySelectorAll('.notification').forEach(n => n.remove());
+            
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.style.cssText = `
+                background-color: ${type === 'success' ? 'var(--primary)' : type === 'error' ? 'var(--danger)' : 'var(--warning)'};
+            `;
+            
+            notification.innerHTML = `
+                <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i>
+                <span>${message}</span>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.classList.add('fade-out');
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        notification.parentNode.removeChild(notification);
+                    }
+                }, 300);
+            }, duration);
+            
+            notification.addEventListener('click', () => {
+                notification.classList.add('fade-out');
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        notification.parentNode.removeChild(notification);
+                    }
+                }, 300);
+            });
+        }
+
+        // ============================================
+        // VERIFICAÇÃO DE PRIMEIRA VISITA
+        // ============================================
+        function checkFirstVisit() {
+            const hasVisitedBefore = localStorage.getItem('froxeHasVisited');
+            
+            const savedMunicipio = localStorage.getItem('froxeMunicipio');
+            
+            if (savedMunicipio !== null) {
+                selectedMunicipio = savedMunicipio;
+                municipioSelect.value = savedMunicipio;
+                isFirstVisit = false;
+                console.log(`✅ Município recuperado: ${savedMunicipio || 'Todos'}`);
+                return false;
+            }
+            
+            if (!hasVisitedBefore) {
+                isFirstVisit = true;
+                localStorage.setItem('froxeHasVisited', 'true');
+                return true;
+            }
+            
+            return false;
+        }
+    </script>
+</body>
+</html>
